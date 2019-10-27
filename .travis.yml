@@ -1,0 +1,14 @@
+dist: trusty
+
+language: node_js
+
+node_js:
+  - node
+  - lts/*
+
+install: npm ci
+
+script:
+  - commitlint-travis
+  - npm run build-and-test-everything
+  - sonar-scanner

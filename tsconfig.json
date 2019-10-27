@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "dist",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noErrorTruncation": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "strict": true,
+        "target": "esnext"
+    },
+    "files": ["src/main.ts"]
+}

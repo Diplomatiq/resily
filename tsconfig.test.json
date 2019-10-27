@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "dist",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noErrorTruncation": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "strict": true,
+        "target": "es2017"
+    },
+    "files": ["src/main.ts"]
+}
