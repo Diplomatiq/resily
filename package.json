@@ -1,0 +1,76 @@
+{
+  "name": "@diplomatiq/resily",
+  "version": "0.0.0",
+  "description": "Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Circuit Breaker, Timeout, Bulkhead Isolation, and Fallback. Inspired by App-vNext/Polly.",
+  "main": "dist/main.js",
+  "module": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "engines": {
+    "node": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build-and-test-everything": "npm run lint && npm run build && npm run test",
+    "check-release-tag": "node --experimental-modules scripts/check-release-tag.mjs",
+    "clean": "rm -r ./dist/",
+    "lint": "eslint ./src/ --ext .ts",
+    "prepare": "npm run build-and-test-everything",
+    "prepublishOnly": "npm run check-release-tag",
+    "test": "cross-env-shell TS_NODE_PROJECT=tsconfig.test.json nyc --reporter=lcov --reporter=text mocha --require ts-node/register --require source-map-support/register --recursive test/specs/**/*.test.ts",
+    "version": "node --experimental-modules scripts/sync-sonar-version.mjs && conventional-changelog -p angular -i CHANGELOG.md -s && git add sonar-project.properties CHANGELOG.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Diplomatiq/resily.git"
+  },
+  "keywords": [
+    "resilience",
+    "fault-handling",
+    "retry",
+    "circuit-breaker",
+    "timeout",
+    "bulkhead-isolation",
+    "fallback"
+  ],
+  "author": "Diplomatiq",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Diplomatiq/resily/issues"
+  },
+  "homepage": "https://github.com/Diplomatiq/resily#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/travis-cli": "^8.1.0",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.0.7",
+    "@types/sinon": "^7.0.12",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
+    "chai": "^4.2.0",
+    "conventional-changelog-cli": "^2.0.25",
+    "cross-env": "^6.0.0",
+    "eslint": "^6.4.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "husky": "^3.0.5",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
+    "sinon": "^7.3.2",
+    "source-map-support": "^0.5.12",
+    "ts-node": "^8.2.0",
+    "typescript": "^3.5.1"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-push": "npm run build-and-test-everything"
+    }
+  }
+}
