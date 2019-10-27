@@ -1,0 +1,12 @@
+types:
+  build: "build" # "Made the code better by enhancing the flow of building the distribution artefact"
+  chore: "chore" # "Made the code better by some housekeeping"
+  ci: "ci" # "Made the code better by enhancing the flow of merging/deploying additional code"
+  docs: "docs" # "Made the code better by writing better documentation"
+  feat: "feat" # "Made the code better by adding or improving a feature"
+  fix: "fix" # "Made the code better by fixing a bug"
+  perf: "perf" # "Made the code better in performance"
+  refactor: "refactor" # "Made the code better in structure"
+  revert: "revert" # "Made the code better by deleting something that made the code worse"
+  style: "style" # "Made the code better in style"
+  test: "test" # "Made the code better by testing it better"
