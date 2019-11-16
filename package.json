@@ -41,7 +41,7 @@
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/travis-cli": "^8.1.0",
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.8",
     "@types/sinon": "^7.0.12",
