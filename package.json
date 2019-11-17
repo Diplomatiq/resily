@@ -48,7 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
     "chai": "^4.2.0",
-    "conventional-changelog-cli": "^2.0.27",
+    "conventional-changelog-cli": "^2.0.28",
     "cross-env": "^6.0.0",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.6.0",
