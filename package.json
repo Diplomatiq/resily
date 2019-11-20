@@ -43,7 +43,7 @@
     "@commitlint/travis-cli": "^8.1.0",
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.9",
+    "@types/node": "^12.12.11",
     "@types/sinon": "^7.0.12",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
