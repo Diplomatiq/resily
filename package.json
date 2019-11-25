@@ -16,7 +16,7 @@
     "lint": "eslint ./src/ --ext .ts",
     "prepare": "npm run build-and-test-everything",
     "prepublishOnly": "npm run check-release-tag",
-    "test": "cross-env-shell TS_NODE_PROJECT=tsconfig.test.json nyc --reporter=lcov --reporter=text mocha --require ts-node/register --require source-map-support/register --recursive test/specs/**/*.test.ts",
+    "test": "cross-env-shell TS_NODE_PROJECT=tsconfig.test.json nyc --reporter=lcov --reporter=text mocha --require ts-node/register --require source-map-support/register --require esm --recursive test/specs/**/*.test.ts",
     "version": "node --experimental-modules scripts/sync-sonar-version.mjs && conventional-changelog -p angular -i CHANGELOG.md -s && git add sonar-project.properties CHANGELOG.md"
   },
   "repository": {
@@ -44,7 +44,6 @@
     "@types/chai": "^4.2.9",
     "@types/mocha": "^7.0.1",
     "@types/node": "^13.7.1",
-    "@types/sinon": "^7.5.1",
     "@typescript-eslint/eslint-plugin": "^2.19.2",
     "@typescript-eslint/parser": "^2.19.2",
     "chai": "^4.2.0",
@@ -59,7 +58,7 @@
     "mocha": "^7.0.1",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
-    "sinon": "^8.1.1",
+    "esm": "^3.2.25",
     "source-map-support": "^0.5.16",
     "ts-node": "^8.6.2",
     "typescript": "^3.7.5"
@@ -72,5 +71,8 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-push": "npm run build-and-test-everything"
     }
+  },
+  "dependencies": {
+    "@diplomatiq/crypto-random": "^2.1.0"
   }
 }

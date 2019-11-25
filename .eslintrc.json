@@ -20,7 +20,7 @@
     "plugins": ["@typescript-eslint/eslint-plugin", "import", "promise"],
     "rules": {
         "no-console": ["error"],
-        "no-extra-parens": ["error"],
+        "no-extra-parens": ["error", "all", { "enforceForArrowConditionals": false }],
         "no-import-assign": ["error"],
         "no-template-curly-in-string": ["error"],
         "curly": ["error", "all"],
