@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/Diplomatiq/resily#readme",
   "devDependencies": {
-    "@commitlint/cli": "^8.1.0",
+    "@commitlint/cli": "^8.3.4",
     "@commitlint/travis-cli": "^8.1.0",
     "@types/chai": "^4.2.7",
     "@types/mocha": "^5.2.7",
