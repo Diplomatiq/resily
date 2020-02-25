@@ -4,9 +4,9 @@ import { BackoffStrategyFactory } from '../../src/policies/reactive/retryPolicy/
 import { NodeJsEntropyProvider } from '../utils/nodeJsEntropyProvider';
 import { windowMock } from '../utils/windowMock';
 
-describe('BackoffStrategyFactory', () => {
-    describe('constantBackoff', () => {
-        it('should produce a constant backoff strategy', () => {
+describe('BackoffStrategyFactory', (): void => {
+    describe('constantBackoff', (): void => {
+        it('should produce a constant backoff strategy', (): void => {
             const strategy = BackoffStrategyFactory.constantBackoff(100);
             expect(strategy(1)).to.equal(100);
             expect(strategy(2)).to.equal(100);
@@ -15,7 +15,7 @@ describe('BackoffStrategyFactory', () => {
             expect(strategy(5)).to.equal(100);
         });
 
-        it('should produce a constant backoff strategy with an immediate first retry if set', () => {
+        it('should produce a constant backoff strategy with an immediate first retry if set', (): void => {
             const strategy = BackoffStrategyFactory.constantBackoff(100, true);
             expect(strategy(1)).to.equal(0);
             expect(strategy(2)).to.equal(100);
@@ -25,8 +25,8 @@ describe('BackoffStrategyFactory', () => {
         });
     });
 
-    describe('linearBackoff', () => {
-        it('should produce a linear backoff strategy', () => {
+    describe('linearBackoff', (): void => {
+        it('should produce a linear backoff strategy', (): void => {
             const strategy = BackoffStrategyFactory.linearBackoff(100);
             expect(strategy(1)).to.equal(100);
             expect(strategy(2)).to.equal(200);
@@ -35,7 +35,7 @@ describe('BackoffStrategyFactory', () => {
             expect(strategy(5)).to.equal(500);
         });
 
-        it('should produce a linear backoff strategy with an immediate first retry if set', () => {
+        it('should produce a linear backoff strategy with an immediate first retry if set', (): void => {
             const strategy = BackoffStrategyFactory.linearBackoff(100, true);
             expect(strategy(1)).to.equal(0);
             expect(strategy(2)).to.equal(100);
@@ -45,8 +45,8 @@ describe('BackoffStrategyFactory', () => {
         });
     });
 
-    describe('exponentialBackoff', () => {
-        it('should produce an exponential backoff strategy', () => {
+    describe('exponentialBackoff', (): void => {
+        it('should produce an exponential backoff strategy', (): void => {
             const strategy = BackoffStrategyFactory.exponentialBackoff(100);
             expect(strategy(1)).to.equal(100);
             expect(strategy(2)).to.equal(200);
@@ -55,7 +55,7 @@ describe('BackoffStrategyFactory', () => {
             expect(strategy(5)).to.equal(1600);
         });
 
-        it('should produce an exponential backoff strategy with an immediate first retry if set', () => {
+        it('should produce an exponential backoff strategy with an immediate first retry if set', (): void => {
             const strategy = BackoffStrategyFactory.exponentialBackoff(100, true);
             expect(strategy(1)).to.equal(0);
             expect(strategy(2)).to.equal(100);
@@ -64,7 +64,7 @@ describe('BackoffStrategyFactory', () => {
             expect(strategy(5)).to.equal(800);
         });
 
-        it('should produce an exponential backoff strategy with a custom base if set', () => {
+        it('should produce an exponential backoff strategy with a custom base if set', (): void => {
             const strategy = BackoffStrategyFactory.exponentialBackoff(100, false, 3);
             expect(strategy(1)).to.equal(100);
             expect(strategy(2)).to.equal(300);
@@ -73,7 +73,7 @@ describe('BackoffStrategyFactory', () => {
             expect(strategy(5)).to.equal(8100);
         });
 
-        it('should produce an exponential backoff strategy with an immediate first retry and a custom base if set', () => {
+        it('should produce an exponential backoff strategy with an immediate first retry and a custom base if set', (): void => {
             const strategy = BackoffStrategyFactory.exponentialBackoff(100, true, 3);
             expect(strategy(1)).to.equal(0);
             expect(strategy(2)).to.equal(100);
@@ -83,8 +83,8 @@ describe('BackoffStrategyFactory', () => {
         });
     });
 
-    describe('jitteredBackoff', () => {
-        it('should produce a jittered backoff strategy', async () => {
+    describe('jitteredBackoff', (): void => {
+        it('should produce a jittered backoff strategy', async (): Promise<void> => {
             const entropyProvider = new NodeJsEntropyProvider();
             const randomGenerator = new RandomGenerator(entropyProvider);
             const strategy = BackoffStrategyFactory.jitteredBackoff(0, 100, false, randomGenerator);
@@ -110,7 +110,9 @@ describe('BackoffStrategyFactory', () => {
                 .and.to.be.at.most(100);
         });
 
-        it('should produce a jittered backoff strategy with an immediate first retry if set', async () => {
+        it('should produce a jittered backoff strategy with an immediate first retry if set', async (): Promise<
+            void
+        > => {
             const entropyProvider = new NodeJsEntropyProvider();
             const randomGenerator = new RandomGenerator(entropyProvider);
             const strategy = BackoffStrategyFactory.jitteredBackoff(0, 100, true, randomGenerator);
@@ -134,7 +136,10 @@ describe('BackoffStrategyFactory', () => {
                 .and.to.be.at.most(100);
         });
 
-        it('should work with the default random generator where window.crypto.getRandomValues() is available', async () => {
+        it('should work with the default random generator where window.crypto.getRandomValues() is available', async (): Promise<
+            void
+        > => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
             // @ts-ignore
             global.window = windowMock();
 
@@ -160,6 +165,7 @@ describe('BackoffStrategyFactory', () => {
                 .to.be.at.least(0)
                 .and.to.be.at.most(100);
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
             // @ts-ignore
             global.window = undefined;
         });

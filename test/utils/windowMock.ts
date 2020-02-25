@@ -1,7 +1,11 @@
 import { randomFillSync } from 'crypto';
 
-export const windowMock = () => ({
+export const windowMock = (): {
     crypto: {
-        getRandomValues: (array: Uint8Array) => randomFillSync(array),
+        getRandomValues: (array: Uint8Array) => Uint8Array;
+    };
+} => ({
+    crypto: {
+        getRandomValues: (array: Uint8Array): Uint8Array => randomFillSync(array),
     },
 });

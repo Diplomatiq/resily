@@ -6,7 +6,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private readonly onRetryFns: Array<
         (result: ResultType | undefined, error: unknown | undefined, currentRetryCount: number) => void | Promise<void>
     > = [];
-    private backoffStrategy: (currentRetryCount: number) => number | Promise<number> = () => 0;
+    private backoffStrategy: (currentRetryCount: number) => number | Promise<number> = (): number => 0;
     private readonly onFinallyFns: Array<() => void | Promise<void>> = [];
     private executing = 0;
 
@@ -24,7 +24,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
         }
 
         if (!Number.isSafeInteger(retryCount)) {
-            throw new Error('retryCount must be less than 2^53 - 1');
+            throw new Error('retryCount must be less than or equal to 2^53 - 1');
         }
 
         if (this.executing > 0) {
@@ -138,11 +138,19 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     }
 
     private async shouldRetryOnResult(result: ResultType, currentRetryCount: number): Promise<boolean> {
-        return this.shouldRetryOn(currentRetryCount, result, async result => this.isResultHandled(result));
+        return this.shouldRetryOn(
+            currentRetryCount,
+            result,
+            async (result): Promise<boolean> => this.isResultHandled(result),
+        );
     }
 
     private async shouldRetryOnException(exception: unknown, currentRetryCount: number): Promise<boolean> {
-        return this.shouldRetryOn(currentRetryCount, exception, async exception => this.isExceptionHandled(exception));
+        return this.shouldRetryOn(
+            currentRetryCount,
+            exception,
+            async (exception): Promise<boolean> => this.isExceptionHandled(exception),
+        );
     }
 
     private async shouldRetryOn<T>(
@@ -158,7 +166,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     }
 
     private async waitFor(ms: number): Promise<void> {
-        return new Promise(resolve => {
+        return new Promise((resolve): void => {
             setTimeout(resolve, ms);
         });
     }
