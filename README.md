@@ -119,6 +119,12 @@ Resily offers **reactive** and **proactive** policies:
 | ------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------- |
 | [**RetryPolicy**](#retrypolicy) | Many faults are transient and will not occur again after a delay. | Allows configuring automatic retries on specified conditions. |
 
+#### Proactive policies
+
+| Policy                              | What does it claim?                                               | How does it work?                                                         |
+| ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [**TimeoutPolicy**](#timeoutpolicy) | After some time, it is unlikely that the call will be successful. | Ensures the caller does not have to wait more than the specified timeout. |
+
 ### Reactive policies
 
 Every reactive policy extends the `ReactivePolicy` class, which means they can be configured with predicates to react on specific results and/or exceptions:
@@ -230,7 +236,7 @@ await policy.execute(async () => {
 
 #### RetryPolicy
 
-RetryPolicy claims that many faults are transient and will not occur again after a delay. It allows configuring automatic retries on specified conditions.
+`RetryPolicy` claims that many faults are transient and will not occur again after a delay. It allows configuring automatic retries on specified conditions.
 
 Configure how many retries you need or retry forever:
 
@@ -350,7 +356,7 @@ import { randomFill } from 'crypto';
 export class NodeJsEntropyProvider implements EntropyProvider {
     public async getRandomValues<T extends UnsignedTypedArray>(array: T): Promise<T> {
         return new Promise<T>((resolve, reject): void => {
-            randomFill(array, (error: Error | null, array: T) => {
+            randomFill(array, (error: Error | null, array: T): void => {
                 if (error !== null) {
                     reject(error);
                     return;
@@ -397,6 +403,105 @@ policy.onFinally(() => {
     throw new Error();
 });
 ```
+
+### Proactive policies
+
+Every proactive policy extends the `ProactivePolicy` class.
+
+#### TimeoutPolicy
+
+`TimeoutPolicy` claims that after some time, it is unlikely the call will be successful. It ensures the caller does not have to wait more than the specified timeout.
+
+Only asynchronous methods can be executed within a `TimeoutPolicy`, or else no timeout happens. `TimeoutPolicy` is implemented with `Promise.race()`, racing the promise returned by the executed method (`executionPromise`) with a promise that is rejected after the specified time elapses (`timeoutPromise`). If the executed method is not asynchronous (i.e. it does not have at least one point to pause its execution at), no timeout will happen even if the execution takes longer than the specified timeout duration, since there is no point in time for taking the control out from the executed method's hands to reject the `timeoutPromise`.
+
+The executed method is fully executed to its end (unless it throws an exception), regardless of whether a timeout has occured or not. `TimeoutPolicy` ensures that the caller does not have to wait more than the specified timeout, but it does neither cancel nor abort\* the execution of the method. This means that if the executed method has side effects, these side effects can occur even after the timeout happened.
+
+\*TypeScript/JavaScript has no _generic_ way of canceling or aborting an executing method, either synchronous or asynchronous. `TimeoutPolicy` runs arbitrary user-provided code: it cannot be assumed the code is prepared in any way (e.g. it has cancel points). The provided code _could_ be executed in a separate worker thread so it can be aborted instantaneously by terminating the worker, but run-time compiling a worker from user-provided code is ugly and error-prone.
+
+On timeout, the Promise returned by the policy's `execute` method is rejected with a `TimeoutException`:
+
+```typescript
+import { TimeoutException, TimeoutPolicy } from '@diplomatiq/resily';
+
+const policy = new TimeoutPolicy();
+
+try {
+    const result = await policy.execute(async () => {
+        // the executed code
+    });
+} catch (ex) {
+    if (ex instanceof TimeoutException) {
+        // the operation timed out
+    } else {
+        // the executed method thrown an exception
+    }
+}
+```
+
+Configure how long the waiting period should be:
+
+```typescript
+import { TimeoutPolicy } from '@diplomatiq/resily';
+
+const policy = new TimeoutPolicy();
+policy.timeoutAfter(1000); // timeout after 1000 ms
+```
+
+Perform certain actions on timeout:
+
+```typescript
+import { TimeoutPolicy } from '@diplomatiq/resily';
+
+const policy = new TimeoutPolicy();
+policy.onTimeout(
+    // onTimeoutFns can be sync or async, they will be awaited
+    async timedOutAfterMs => {
+        // the policy was configured to timeout after timedOutAfterMs
+    },
+);
+
+// you can set multiple onTimeoutFns, they will run sequentially
+policy.onTimeout(async () => {
+    // this will be awaited first
+});
+policy.onTimeout(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onTimeoutFn will be caught and ignored
+policy.onTimeout(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+Throwing a `TimeoutException` from the executed method is not a timeout, therefore it does not trigger running `onTimeout` functions:
+
+```typescript
+import { TimeoutException, TimeoutPolicy } from '@diplomatiq/resily';
+
+const policy = new TimeoutPolicy();
+
+let onTimeoutRan = false;
+policy.onTimeout(() => {
+    onTimeoutRan = true;
+});
+
+try {
+    await policy.execute(async () => {
+        throw new TimeoutException();
+    });
+} catch (ex) {
+    // ex is a TimeoutException (thrown by the executed method)
+    const isTimeoutException = ex instanceof TimeoutException; // true
+}
+
+// onTimeoutRan is false
+```
+
+## Development
+
+See [CONTRIBUTING.md](https://github.com/Diplomatiq/resily/blob/develop/CONTRIBUTING.md) for details.
 
 ---
 
