@@ -73,6 +73,6 @@
     }
   },
   "dependencies": {
-    "@diplomatiq/crypto-random": "^2.1.0"
+    "@diplomatiq/crypto-random": "^2.2.0"
   }
 }
