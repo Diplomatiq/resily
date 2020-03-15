@@ -340,11 +340,11 @@ policy.waitBeforeRetry(BackoffStrategyFactory.exponentialBackoff(100, false, 3))
 // 0 100 300 900 2700 …
 policy.waitBeforeRetry(BackoffStrategyFactory.exponentialBackoff(100, true, 3));
 
-// wait for a [random between 0-100, inclusive] ms before each retry
-policy.waitBeforeRetry(BackoffStrategyFactory.jitteredBackoff(0, 100));
+// wait for a [random between 1-100, inclusive] ms before each retry
+policy.waitBeforeRetry(BackoffStrategyFactory.jitteredBackoff(1, 100));
 
-// retry immediately for the first time, then wait for a [random between 0-100, inclusive] ms before each retry
-policy.waitBeforeRetry(BackoffStrategyFactory.jitteredBackoff(0, 100, true));
+// retry immediately for the first time, then wait for a [random between 1-100, inclusive] ms before each retry
+policy.waitBeforeRetry(BackoffStrategyFactory.jitteredBackoff(1, 100, true));
 ```
 
 For using `jitteredBackoff` in Node.js environments, you will need to inject a Node.js-based entropy source into the default RandomGenerator ([@diplomatiq/crypto-random](https://github.com/Diplomatiq/crypto-random) requires `window.crypto.getRandomValues` to be available by default). Create the following in your project:
