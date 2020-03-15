@@ -16,7 +16,7 @@ export class TimeoutPolicy<ResultType> extends ProactivePolicy<ResultType> {
             throw new Error('timeoutMs must be integer');
         }
 
-        if (timeoutMs < 0) {
+        if (timeoutMs <= 0) {
             throw new Error('timeoutMs must be greater than 0');
         }
 

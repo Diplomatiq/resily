@@ -243,6 +243,17 @@ describe('TimeoutPolicy', (): void => {
         }
     });
 
+    it('should throw error when setting timeoutAfter to 0', (): void => {
+        const policy = new TimeoutPolicy<void>();
+
+        try {
+            policy.timeoutAfter(0);
+            expect.fail('did not throw');
+        } catch (ex) {
+            expect((ex as Error).message).to.equal('timeoutMs must be greater than 0');
+        }
+    });
+
     it('should throw error when setting timeoutAfter to <0', (): void => {
         const policy = new TimeoutPolicy<void>();
 
