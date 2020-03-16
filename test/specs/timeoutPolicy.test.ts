@@ -243,6 +243,40 @@ describe('TimeoutPolicy', (): void => {
         }
     });
 
+    it("should be properly mutex'd for running an instance multiple times simultaneously", async (): Promise<void> => {
+        const policy = new TimeoutPolicy<void>();
+
+        await Promise.all([
+            ...new Array(100).fill(undefined).map(
+                async (): Promise<void> =>
+                    policy.execute(
+                        async (): Promise<void> =>
+                            new Promise((resolve): void => {
+                                setTimeout(resolve, 20);
+                            }),
+                    ),
+            ),
+            ...new Array(100).fill(undefined).map((): void => {
+                try {
+                    policy.timeoutAfter(1);
+                    expect.fail('did not throw');
+                } catch (ex) {
+                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                }
+            }),
+            ...new Array(100).fill(undefined).map((): void => {
+                try {
+                    policy.onTimeout((): void => {
+                        // empty
+                    });
+                    expect.fail('did not throw');
+                } catch (ex) {
+                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                }
+            }),
+        ]);
+    });
+
     it('should throw error when setting timeoutAfter to 0', (): void => {
         const policy = new TimeoutPolicy<void>();
 
