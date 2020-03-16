@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { RetryPolicy } from '../../src/policies/reactive/retryPolicy/retryPolicy';
 
 describe('RetryPolicy', (): void => {
-    it('should run the execution callback and return its result by default', async (): Promise<void> => {
+    it('should run the synchronous execution callback and return its result by default', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
         const result = await policy.execute((): string => {
             return 'Diplomatiq is cool.';
@@ -11,16 +11,19 @@ describe('RetryPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should run the async execution callback and return its result by default', async (): Promise<void> => {
+    it('should run the asynchronous execution callback and return its result by default', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
-        const result = await policy.execute((): string => {
-            return 'Diplomatiq is cool.';
-        });
+        const result = await policy.execute(
+            // eslint-disable-next-line @typescript-eslint/require-await
+            async (): Promise<string> => {
+                return 'Diplomatiq is cool.';
+            },
+        );
 
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should run the execution callback and throw its exceptions by default', async (): Promise<void> => {
+    it('should run the synchronous execution callback and throw its exceptions by default', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
 
         try {
@@ -33,13 +36,18 @@ describe('RetryPolicy', (): void => {
         }
     });
 
-    it('should run the async execution callback and throw its exceptions by default', async (): Promise<void> => {
+    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<
+        void
+    > => {
         const policy = new RetryPolicy();
 
         try {
-            await policy.execute((): unknown => {
-                throw new Error('TestException');
-            });
+            await policy.execute(
+                // eslint-disable-next-line @typescript-eslint/require-await
+                async (): Promise<unknown> => {
+                    throw new Error('TestException');
+                },
+            );
             expect.fail('did not throw');
         } catch (ex) {
             expect((ex as Error).message).to.equal('TestException');
@@ -355,6 +363,24 @@ describe('RetryPolicy', (): void => {
         expect(onRetryExecuted).to.equal(1);
     });
 
+    it('should not run onRetryFn if not retried', async (): Promise<void> => {
+        const policy = new RetryPolicy();
+
+        let executed = 0;
+        let onRetryExecuted = 0;
+
+        policy.onRetry((): void => {
+            onRetryExecuted++;
+        });
+
+        await policy.execute((): void => {
+            executed++;
+        });
+
+        expect(executed).to.equal(1);
+        expect(onRetryExecuted).to.equal(0);
+    });
+
     it('should run onRetryFn with error filled on retry, before the retried execution thrice when setting retryCount to 3', async (): Promise<
         void
     > => {
@@ -388,7 +414,7 @@ describe('RetryPolicy', (): void => {
         expect(onRetryExecuted).to.equal(3);
     });
 
-    it('should await an async onRetryFn before retrying', async (): Promise<void> => {
+    it('should await an asynchronous onRetryFn before retrying', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
 
         let executed = 0;
@@ -588,7 +614,7 @@ describe('RetryPolicy', (): void => {
         expect(onFinallyExecuted).to.equal(1);
     });
 
-    it('should run multiple onFinallyFns sequentially', async (): Promise<void> => {
+    it('should run multiple synchronous onFinallyFns sequentially', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
 
         let executed = 0;
@@ -620,7 +646,7 @@ describe('RetryPolicy', (): void => {
         expect(onFinallyExecuted).to.equal(3);
     });
 
-    it('should run multiple async onFinallyFns sequentially', async (): Promise<void> => {
+    it('should run multiple asynchronous onFinallyFns sequentially', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
 
         let executed = 0;

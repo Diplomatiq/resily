@@ -1,13 +1,13 @@
-import { Predicate } from '../../../types/predicate';
+import { OnFinallyFn } from '../../../types/onFinallyFn';
 import { ReactivePolicy } from '../reactivePolicy';
+import { BackoffStrategy } from './backoffStrategy';
+import { OnRetryFn } from './onRetryFn';
 
 export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private totalRetryCount = 1;
-    private readonly onRetryFns: Array<
-        (result: ResultType | undefined, error: unknown | undefined, currentRetryCount: number) => void | Promise<void>
-    > = [];
-    private backoffStrategy: (currentRetryCount: number) => number | Promise<number> = (): number => 0;
-    private readonly onFinallyFns: Array<() => void | Promise<void>> = [];
+    private readonly onRetryFns: Array<OnRetryFn<ResultType>> = [];
+    private backoffStrategy: BackoffStrategy = (): number => 0;
+    private readonly onFinallyFns: OnFinallyFn[] = [];
     private executing = 0;
 
     public constructor() {
@@ -42,13 +42,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
         this.totalRetryCount = Number.POSITIVE_INFINITY;
     }
 
-    public onRetry(
-        fn: (
-            result: ResultType | undefined,
-            error: unknown | undefined,
-            currentRetryCount: number,
-        ) => void | Promise<void>,
-    ): void {
+    public onRetry(fn: OnRetryFn<ResultType>): void {
         if (this.executing > 0) {
             throw new Error('cannot modify policy during execution');
         }
@@ -56,7 +50,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
         this.onRetryFns.push(fn);
     }
 
-    public waitBeforeRetry(strategy: (currentRetryCount: number) => number | Promise<number>): void {
+    public waitBeforeRetry(strategy: BackoffStrategy): void {
         if (this.executing > 0) {
             throw new Error('cannot modify policy during execution');
         }
@@ -64,7 +58,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
         this.backoffStrategy = strategy;
     }
 
-    public onFinally(fn: () => void | Promise<void>): void {
+    public onFinally(fn: OnFinallyFn): void {
         if (this.executing > 0) {
             throw new Error('cannot modify policy during execution');
         }
@@ -73,9 +67,9 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     }
 
     public async execute(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
-        this.executing++;
-
         try {
+            this.executing++;
+
             let currentRetryCount = 0;
 
             // eslint-disable-next-line no-constant-condition
@@ -83,9 +77,13 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                 try {
                     const result = await fn();
 
+                    const shouldRetryOnResult = await this.isResultHandled(result);
+                    if (!shouldRetryOnResult) {
+                        return result;
+                    }
+
                     currentRetryCount++;
-                    const shouldRetry = await this.shouldRetryOnResult(result, currentRetryCount);
-                    if (!shouldRetry) {
+                    if (!this.hasRetryLeft(currentRetryCount)) {
                         return result;
                     }
 
@@ -102,9 +100,13 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
 
                     continue;
                 } catch (ex) {
+                    const shouldRetryOnException = await this.isExceptionHandled(ex);
+                    if (!shouldRetryOnException) {
+                        throw ex;
+                    }
+
                     currentRetryCount++;
-                    const shouldRetry = await this.shouldRetryOnException(ex, currentRetryCount);
-                    if (!shouldRetry) {
+                    if (!this.hasRetryLeft(currentRetryCount)) {
                         throw ex;
                     }
 
@@ -137,32 +139,8 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
         }
     }
 
-    private async shouldRetryOnResult(result: ResultType, currentRetryCount: number): Promise<boolean> {
-        return this.shouldRetryOn(
-            currentRetryCount,
-            result,
-            async (result): Promise<boolean> => this.isResultHandled(result),
-        );
-    }
-
-    private async shouldRetryOnException(exception: unknown, currentRetryCount: number): Promise<boolean> {
-        return this.shouldRetryOn(
-            currentRetryCount,
-            exception,
-            async (exception): Promise<boolean> => this.isExceptionHandled(exception),
-        );
-    }
-
-    private async shouldRetryOn<T>(
-        currentRetryCount: number,
-        subject: T,
-        shouldRetryCb: Predicate<T>,
-    ): Promise<boolean> {
-        if (currentRetryCount > this.totalRetryCount) {
-            return false;
-        }
-
-        return shouldRetryCb(subject);
+    private hasRetryLeft(currentRetryCount: number): boolean {
+        return currentRetryCount <= this.totalRetryCount;
     }
 
     private async waitFor(ms: number): Promise<void> {

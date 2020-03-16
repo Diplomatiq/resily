@@ -113,13 +113,14 @@ Resily offers **reactive** and **proactive** policies:
 -   A **reactive** policy executes the wrapped method, then reacts to the outcome (which in practice is the result of or an exception thrown by the executed method) by acting as specified in the policy itself. Examples for reactive policies include retry, fallback, circuit-breaker.
 -   A **proactive** policy executes the wrapped method, then acts on its own as specified in the policy itself, regardless of the outcome of the executed code. Examples for proactive policies include timeout, bulkhead isolation, cache.
 
-#### Reactive policies
+#### Reactive policies summary
 
-| Policy                          | What does it claim?                                               | How does it work?                                             |
-| ------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------- |
-| [**RetryPolicy**](#retrypolicy) | Many faults are transient and will not occur again after a delay. | Allows configuring automatic retries on specified conditions. |
+| Policy                                | What does it claim?                                               | How does it work?                                                   |
+| ------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [**RetryPolicy**](#retrypolicy)       | Many faults are transient and will not occur again after a delay. | Allows configuring automatic retries on specified conditions.       |
+| [**FallbackPolicy**](#fallbackpolicy) | Failures happen, and we can prepare for them.                     | Allows configuring substitute values or automated fallback actions. |
 
-#### Proactive policies
+#### Proactive policies summary
 
 | Policy                              | What does it claim?                                               | How does it work?                                                         |
 | ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -234,16 +235,33 @@ await policy.execute(async () => {
 });
 ```
 
+You can configure the policy to react on any result and/or to any exception:
+
+```typescript
+const policy = … // any reactive policy
+
+// react on any result
+policy.handleResult(() => true);
+
+// react on any exception
+policy.handleException(() => true);
+```
+
 #### RetryPolicy
 
 `RetryPolicy` claims that many faults are transient and will not occur again after a delay. It allows configuring automatic retries on specified conditions.
+
+Since `RetryPolicy` is a reactive policy, you can configure the policy to retry the execution on specific results or exceptions with `handleResult` and `handleException`. See the [Reactive policies](#reactive-policies) section for details.
 
 Configure how many retries you need or retry forever:
 
 ```typescript
 import { RetryPolicy } from '@diplomatiq/resily';
 
-const policy = new RetryPolicy();
+// the wrapped method is supposed to return a string
+const policy = new RetryPolicy<string>();
+
+// retry until the result/exception is reactive, but maximum 3 times
 policy.retryCount(3);
 
 // this overwrites the previous value
@@ -259,7 +277,9 @@ Perform certain actions before retrying:
 ```typescript
 import { RetryPolicy } from '@diplomatiq/resily';
 
-const policy = new RetryPolicy();
+// the wrapped method is supposed to return a string
+const policy = new RetryPolicy<string>();
+
 policy.onRetry(
     // onRetryFns can be sync or async, they will be awaited
     async (result, error, currentRetryCount) => {
@@ -289,7 +309,8 @@ Wait for the specified number of milliseconds before retrying:
 ```typescript
 import { RetryPolicy } from '@diplomatiq/resily';
 
-const policy = new RetryPolicy();
+// the wrapped method is supposed to return a string
+const policy = new RetryPolicy<string>();
 
 // wait for 100 ms before each retry
 policy.waitBeforeRetry(() => 100);
@@ -306,7 +327,8 @@ Although you can code any kind of backoff, there are also predefined, ready-to-u
 ```typescript
 import { BackoffStrategyFactory, RetryPolicy } from '@diplomatiq/resily';
 
-const policy = new RetryPolicy();
+// the wrapped method is supposed to return a string
+const policy = new RetryPolicy<string>();
 
 // wait for 100 ms before each retry
 // 100 100 100 100 100 …
@@ -377,13 +399,107 @@ import { NodeJsEntropyProvider } from './nodeJsEntropyProvider';
 const entropyProvider = new NodeJsEntropyProvider();
 const randomGenerator = new RandomGenerator(entropyProvider);
 
-const jitteredBackoff = BackoffStrategyFactory.jitteredBackoff(0, 100, true, randomGenerator);
+const jitteredBackoff = BackoffStrategyFactory.jitteredBackoff(1, 100, true, randomGenerator);
 ```
 
 Perform certain actions after the execution and all retries finished:
 
 ```typescript
-const policy = new RetryPolicy();
+// the wrapped method is supposed to return a string
+const policy = new RetryPolicy<string>();
+
+policy.onFinally(
+    // onFinallyFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onFinallyFns, they will run sequentially
+policy.onFinally(async () => {
+    // this will be awaited first
+});
+policy.onFinally(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onFinallyFn will be caught and ignored
+policy.onFinally(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+#### FallbackPolicy
+
+`FallbackPolicy` claims that failures happen, and we can prepare for them. It allows configuring substitute values or automated fallback actions.
+
+Since `FallbackPolicy` is a reactive policy, you can configure the policy to fallback along its fallback chain on specific results or exceptions with `handleResult` and `handleException`. See the [Reactive policies](#reactive-policies) section for details.
+
+Configure the fallback chain:
+
+```typescript
+import { FallbackPolicy } from '@diplomatiq/resily';
+
+// the wrapped method and its fallbacks are supposed to return a string
+const policy = new FallbackPolicy<string>();
+
+// if the wrapped method's result/exception is reactive, configure a fallback method onto the fallback chain
+policy.fallback(
+    // the fallback methods can be sync or async, they will be awaited
+    () => {
+        // do something
+    },
+);
+
+// if the previous fallback method's result/exception is reactive, configure another fallback onto the fallback chain
+policy.fallback(
+    // the fallback methods can be sync or async, they will be awaited
+    async () => {
+        // do something
+    },
+);
+
+// you can configure any number of fallback methods onto the fallback chain
+```
+
+If there are no more elements on the fallback chain but the last result/exception is still reactive — meaning there are no more fallbacks when needed —, a `FallbackChainExhaustedException` is thrown.
+
+Perform certain actions before the fallback:
+
+```typescript
+import { FallbackPolicy } from '@diplomatiq/resily';
+
+// the wrapped method and its fallbacks are supposed to return a string
+const policy = new FallbackPolicy<string>();
+
+policy.onFallback(
+    // onFallbackFns can be sync or async, they will be awaited
+    async (result, error) => {
+        // result is undefined if reacting upon a thrown error
+        // error is undefined if reacting upon a result
+    },
+);
+
+// you can set multiple onFallbackFns, they will run sequentially
+policy.onFallback(async () => {
+    // this will be awaited first
+});
+policy.onFallback(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onFallbackFn will be caught and ignored
+policy.onFallback(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+Perform certain actions after the execution and all fallbacks finished:
+
+```typescript
+// the wrapped method and its fallbacks are supposed to return a string
+const policy = new FallbackPolicy<string>();
+
 policy.onFinally(
     // onFinallyFns can be sync or async, they will be awaited
     async () => {},
@@ -418,7 +534,7 @@ The executed method is fully executed to its end (unless it throws an exception)
 
 \*TypeScript/JavaScript has no _generic_ way of canceling or aborting an executing method, either synchronous or asynchronous. `TimeoutPolicy` runs arbitrary user-provided code: it cannot be assumed the code is prepared in any way (e.g. it has cancel points). The provided code _could_ be executed in a separate worker thread so it can be aborted instantaneously by terminating the worker, but run-time compiling a worker from user-provided code is ugly and error-prone.
 
-On timeout, the Promise returned by the policy's `execute` method is rejected with a `TimeoutException`:
+On timeout, the promise returned by the policy's `execute` method is rejected with a `TimeoutException`:
 
 ```typescript
 import { TimeoutException, TimeoutPolicy } from '@diplomatiq/resily';
