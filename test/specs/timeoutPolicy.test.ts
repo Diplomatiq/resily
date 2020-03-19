@@ -246,35 +246,73 @@ describe('TimeoutPolicy', (): void => {
     it("should be properly mutex'd for running an instance multiple times simultaneously", async (): Promise<void> => {
         const policy = new TimeoutPolicy<void>();
 
-        await Promise.all([
-            ...new Array(100).fill(undefined).map(
-                async (): Promise<void> =>
-                    policy.execute(
-                        async (): Promise<void> =>
-                            new Promise((resolve): void => {
-                                setTimeout(resolve, 20);
-                            }),
-                    ),
-            ),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.timeoutAfter(1);
+        const attemptPolicyModification = (expectFailure: boolean): void => {
+            try {
+                policy.timeoutAfter(1000);
+                if (expectFailure) {
                     expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
                 }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.onTimeout((): void => {
-                        // empty
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.onTimeout((): void => {
+                    // empty
+                });
+                if (expectFailure) {
+                    expect.fail('did not throw');
+                }
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+        };
+
+        const executionResolverAddedDeferreds: Array<{
+            resolverAddedPromise: Promise<void>;
+            resolverAddedResolver: () => void;
+        }> = new Array(100).fill(undefined).map((): {
+            resolverAddedPromise: Promise<void>;
+            resolverAddedResolver: () => void;
+        } => {
+            let resolverAddedResolver!: () => void;
+            const resolverAddedPromise = new Promise<void>((resolve): void => {
+                resolverAddedResolver = resolve;
+            });
+
+            return {
+                resolverAddedPromise,
+                resolverAddedResolver,
+            };
+        });
+
+        const executionResolvers: Array<() => void> = [];
+
+        attemptPolicyModification(false);
+
+        for (let i = 0; i < 100; i++) {
+            policy.execute(
+                // eslint-disable-next-line no-loop-func
+                async (): Promise<void> => {
+                    await new Promise<void>((resolve): void => {
+                        executionResolvers.push(resolve);
+                        executionResolverAddedDeferreds[i].resolverAddedResolver();
                     });
-                    expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
-                }
-            }),
-        ]);
+                },
+            );
+
+            await executionResolverAddedDeferreds[i].resolverAddedPromise;
+            expect(executionResolvers.length).to.equal(i + 1);
+
+            attemptPolicyModification(true);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            executionResolvers[i]();
+            attemptPolicyModification(true);
+        }
+
+        attemptPolicyModification(false);
     });
 
     it('should throw error when setting timeoutAfter to 0', (): void => {
