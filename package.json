@@ -43,7 +43,7 @@
     "@commitlint/travis-cli": "^8.3.5",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^13.9.1",
+    "@types/node": "^13.9.2",
     "chai": "^4.2.0",
     "conventional-changelog-cli": "^2.0.31",
     "cross-env": "^7.0.2",
