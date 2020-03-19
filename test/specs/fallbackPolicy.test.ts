@@ -52,11 +52,11 @@ describe('FallbackPolicy', (): void => {
         }
     });
 
-    it('should fallback on a given (i.e. wrong) result, then return the result of the synchronous fallback function', async (): Promise<
+    it('should fallback on a reactive (i.e. wrong) result, then return the result of the synchronous fallback function', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.fallback((): string => {
             return 'Diplomatiq is the coolest.';
         });
@@ -68,11 +68,11 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is the coolest.');
     });
 
-    it('should fallback on a given (i.e. wrong) result, then return the result of the asynchronous fallback function', async (): Promise<
+    it('should fallback on a reactive (i.e. wrong) result, then return the result of the asynchronous fallback function', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.fallback(
             // eslint-disable-next-line @typescript-eslint/require-await
             async (): Promise<string> => {
@@ -87,9 +87,9 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is the coolest.');
     });
 
-    it('should not fallback on a not given (i.e. right) result, but return the result', async (): Promise<void> => {
+    it('should not fallback on a non-reactive (i.e. right) result, but return the result', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is not cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is not cool.');
 
         const result = await policy.execute((): string => {
             return 'Diplomatiq is cool.';
@@ -98,14 +98,14 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should fallback along a synchronous fallback chain sequentially while it produces the given (i.e. wrong) result until the first not given (i.e. good) result is produced', async (): Promise<
+    it('should fallback along a synchronous fallback chain sequentially while it produces reactive (i.e. wrong) result until the first non-reactive (i.e. right) result is produced', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
 
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
@@ -134,14 +134,14 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback along an asynchronous fallback chain sequentially while it produces the given (i.e. wrong) result, until the first not given (i.e. good) result is produced', async (): Promise<
+    it('should fallback along an asynchronous fallback chain sequentially while it produces reactive (i.e. wrong) result, until the first non-reactive (i.e. right) result is produced', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
 
         policy.fallback(
             // eslint-disable-next-line @typescript-eslint/require-await
@@ -179,14 +179,14 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback on multiple given (i.e. wrong) results if any of them occurs', async (): Promise<void> => {
+    it('should fallback on multiple reactive (i.e. wrong) results if any of them occurs', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is not cool.');
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is the worst.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is not cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is the worst.');
 
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
@@ -220,7 +220,7 @@ describe('FallbackPolicy', (): void => {
 
         let fallbacksExecuted = 0;
 
-        policy.handleResult((): boolean => true);
+        policy.reactOnResult((): boolean => true);
 
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
@@ -253,11 +253,11 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback on a given exception, then return the result of the synchronous fallback function', async (): Promise<
+    it('should fallback on a reactive exception, then return the result of the synchronous fallback function', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.fallback((): string => {
             return 'Diplomatiq is cool.';
         });
@@ -269,11 +269,11 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should fallback on a given exception, then return the result of the asynchronous fallback function', async (): Promise<
+    it('should fallback on a reactive exception, then return the result of the asynchronous fallback function', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.fallback(
             // eslint-disable-next-line @typescript-eslint/require-await
             async (): Promise<string> => {
@@ -288,9 +288,9 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should not fallback on a not given exception, but throw the exception', async (): Promise<void> => {
+    it('should not fallback on a non-reactive exception, but throw the exception', async (): Promise<void> => {
         const policy = new FallbackPolicy<void>();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'AnotherException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'AnotherException');
 
         try {
             await policy.execute((): void => {
@@ -302,14 +302,14 @@ describe('FallbackPolicy', (): void => {
         }
     });
 
-    it('should fallback along a synchronous fallback chain sequentially while it throws the given exception result until the first not given exception is thrown', async (): Promise<
+    it('should fallback along a synchronous fallback chain sequentially while it throws reactive exception result until the first non-reactive exception is thrown', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
@@ -338,14 +338,14 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback along an asynchronous fallback chain sequentially while it throws the given exception result until the first not given exception is thrown', async (): Promise<
+    it('should fallback along an asynchronous fallback chain sequentially while it throws reactive exception until the first non-reactive exception is thrown', async (): Promise<
         void
     > => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
         policy.fallback(
             // eslint-disable-next-line @typescript-eslint/require-await
@@ -383,14 +383,14 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback on multiple given exceptions if any of them occurs', async (): Promise<void> => {
+    it('should fallback on multiple reactive exceptions if any of them occurs', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'ExceptionOne');
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'ExceptionTwo');
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'ExceptionThree');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'ExceptionOne');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'ExceptionTwo');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'ExceptionThree');
 
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
@@ -424,7 +424,7 @@ describe('FallbackPolicy', (): void => {
 
         let fallbacksExecuted = 0;
 
-        policy.handleException((): boolean => true);
+        policy.reactOnException((): boolean => true);
 
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
@@ -457,7 +457,7 @@ describe('FallbackPolicy', (): void => {
         void
     > => {
         const policy = new FallbackPolicy<string>();
-        policy.handleResult((): boolean => true);
+        policy.reactOnResult((): boolean => true);
 
         try {
             await policy.execute((): string => {
@@ -473,7 +473,7 @@ describe('FallbackPolicy', (): void => {
         void
     > => {
         const policy = new FallbackPolicy<string>();
-        policy.handleException((): boolean => true);
+        policy.reactOnException((): boolean => true);
 
         try {
             await policy.execute((): string => {
@@ -491,7 +491,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -524,7 +524,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -566,7 +566,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -599,7 +599,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -658,7 +658,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -694,7 +694,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -753,7 +753,7 @@ describe('FallbackPolicy', (): void => {
         let fallbacksExecuted = 0;
         let onFallbackExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -822,7 +822,7 @@ describe('FallbackPolicy', (): void => {
         let onFallbackExecuted = 0;
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             expect(fallbacksExecuted).to.equal(0);
             fallbacksExecuted++;
@@ -955,7 +955,7 @@ describe('FallbackPolicy', (): void => {
 
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is bad.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is bad.');
         policy.fallback((): string => {
             return 'Diplomatiq is bad.';
         });
@@ -1040,46 +1040,85 @@ describe('FallbackPolicy', (): void => {
     it("should be properly mutex'd for running an instance multiple times simultaneously", async (): Promise<void> => {
         const policy = new FallbackPolicy<void>();
 
-        await Promise.all([
-            ...new Array(100).fill(undefined).map(
-                async (): Promise<void> =>
-                    policy.execute(
-                        async (): Promise<void> =>
-                            new Promise((resolve): void => {
-                                setTimeout(resolve, 20);
-                            }),
-                    ),
-            ),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.fallback((): void => {
-                        // empty
-                    });
+        const attemptPolicyModification = (expectFailure: boolean): void => {
+            try {
+                policy.fallback((): void => {
+                    // empty
+                });
+                if (expectFailure) {
                     expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
                 }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.onFallback((): void => {
-                        // empty
-                    });
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.onFallback((): void => {
+                    // empty
+                });
+                if (expectFailure) {
                     expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
                 }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.onFinally((): void => {
-                        // empty
-                    });
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.onFinally((): void => {
+                    // empty
+                });
+                if (expectFailure) {
                     expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
                 }
-            }),
-        ]);
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+        };
+
+        const executionResolverAddedDeferreds: Array<{
+            resolverAddedPromise: Promise<void>;
+            resolverAddedResolver: () => void;
+        }> = new Array(100).fill(undefined).map((): {
+            resolverAddedPromise: Promise<void>;
+            resolverAddedResolver: () => void;
+        } => {
+            let resolverAddedResolver!: () => void;
+            const resolverAddedPromise = new Promise<void>((resolve): void => {
+                resolverAddedResolver = resolve;
+            });
+
+            return {
+                resolverAddedPromise,
+                resolverAddedResolver,
+            };
+        });
+
+        const executionResolvers: Array<() => void> = [];
+
+        attemptPolicyModification(false);
+
+        for (let i = 0; i < 100; i++) {
+            policy.execute(
+                // eslint-disable-next-line no-loop-func
+                async (): Promise<void> => {
+                    await new Promise<void>((resolve): void => {
+                        executionResolvers.push(resolve);
+                        executionResolverAddedDeferreds[i].resolverAddedResolver();
+                    });
+                },
+            );
+
+            await executionResolverAddedDeferreds[i].resolverAddedPromise;
+            expect(executionResolvers.length).to.equal(i + 1);
+
+            attemptPolicyModification(true);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            executionResolvers[i]();
+            attemptPolicyModification(true);
+        }
+
+        attemptPolicyModification(false);
     });
 });

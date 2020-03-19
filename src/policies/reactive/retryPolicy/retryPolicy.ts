@@ -8,11 +8,8 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private readonly onRetryFns: Array<OnRetryFn<ResultType>> = [];
     private backoffStrategy: BackoffStrategy = (): number => 0;
     private readonly onFinallyFns: OnFinallyFn[] = [];
-    private executing = 0;
 
-    public constructor() {
-        super();
-    }
+    private executing = 0;
 
     public retryCount(retryCount: number): void {
         if (!Number.isInteger(retryCount)) {
@@ -77,7 +74,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                 try {
                     const result = await fn();
 
-                    const shouldRetryOnResult = await this.isResultHandled(result);
+                    const shouldRetryOnResult = await this.isReactiveToResult(result);
                     if (!shouldRetryOnResult) {
                         return result;
                     }
@@ -88,7 +85,9 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                     }
 
                     const waitFor = await this.backoffStrategy(currentRetryCount);
-                    await this.waitFor(waitFor);
+                    if (waitFor > 0) {
+                        await this.waitFor(waitFor);
+                    }
 
                     for (const onRetryFn of this.onRetryFns) {
                         try {
@@ -100,7 +99,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
 
                     continue;
                 } catch (ex) {
-                    const shouldRetryOnException = await this.isExceptionHandled(ex);
+                    const shouldRetryOnException = await this.isReactiveToException(ex);
                     if (!shouldRetryOnException) {
                         throw ex;
                     }
@@ -111,7 +110,9 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                     }
 
                     const waitFor = await this.backoffStrategy(currentRetryCount);
-                    await this.waitFor(waitFor);
+                    if (waitFor > 0) {
+                        await this.waitFor(waitFor);
+                    }
 
                     for (const onRetryFn of this.onRetryFns) {
                         try {
