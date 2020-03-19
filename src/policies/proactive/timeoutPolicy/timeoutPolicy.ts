@@ -1,15 +1,13 @@
 import { ProactivePolicy } from '../proactivePolicy';
 import { ExecutionException } from './executionException';
+import { OnTimeoutFn } from './onTimeoutFn';
 import { TimeoutException } from './timeoutException';
 
 export class TimeoutPolicy<ResultType> extends ProactivePolicy<ResultType> {
     private timeoutMs: number | undefined;
-    private readonly onTimeoutFns: Array<(timedOutAfter: number) => void | Promise<void>> = [];
-    private executing = 0;
+    private readonly onTimeoutFns: OnTimeoutFn[] = [];
 
-    public constructor() {
-        super();
-    }
+    private executing = 0;
 
     public timeoutAfter(timeoutMs: number): void {
         if (!Number.isInteger(timeoutMs)) {

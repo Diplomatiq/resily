@@ -115,10 +115,11 @@ Resily offers **reactive** and **proactive** policies:
 
 #### Reactive policies summary
 
-| Policy                                | What does it claim?                                               | How does it work?                                                   |
-| ------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-| [**RetryPolicy**](#retrypolicy)       | Many faults are transient and will not occur again after a delay. | Allows configuring automatic retries on specified conditions.       |
-| [**FallbackPolicy**](#fallbackpolicy) | Failures happen, and we can prepare for them.                     | Allows configuring substitute values or automated fallback actions. |
+| Policy                                            | What does it claim?                                                                                                                                                 | How does it work?                                                                                                                                     |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [**RetryPolicy**](#retrypolicy)                   | Many faults are transient and will not occur again after a delay.                                                                                                   | Allows configuring automatic retries on specified conditions.                                                                                         |
+| [**FallbackPolicy**](#fallbackpolicy)             | Failures happen, and we can prepare for them.                                                                                                                       | Allows configuring substitute values or automated fallback actions.                                                                                   |
+| [**CircuitBreakerPolicy**](#circuitbreakerpolicy) | Systems faulting under heavy load can recover easier without even more load — in these cases it's better to fail fast than to keep callers on hold for a long time. | If there are more consecutive faulty responses than the configured number, it breaks the circuit (blocks the executions) for a specified time period. |
 
 #### Proactive policies summary
 
@@ -134,18 +135,18 @@ Every reactive policy extends the `ReactivePolicy` class, which means they can b
 const policy = … // any reactive policy
 
 // if the executed code returns 5, the policy will react
-policy.handleResult(r => r === 5);
+policy.reactOnResult(r => r === 5);
 
-// will be handled
+// will react
 await policy.execute(() => 5);
 
-// will be handled
+// will react
 await policy.execute(async () => 5);
 
-// will not be handled
+// will not react
 await policy.execute(() => 2);
 
-// will not be handled
+// will not react
 await policy.execute(async () => 2);
 ```
 
@@ -153,83 +154,83 @@ await policy.execute(async () => 2);
 const policy = … // any reactive policy
 
 // if the executed code throws a ConcurrentAccessException, the policy will react
-policy.handleException(e => e instanceof ConcurrentAccessException);
+policy.reactOnException(e => e instanceof ConcurrentAccessException);
 
-// will be handled
+// will react
 await policy.execute(() => {
     throw new ConcurrentAccessException();
 });
 
-// will be handled
+// will react
 await policy.execute(async () => {
     throw new ConcurrentAccessException();
 });
 
-// will not be handled
+// will not react
 await policy.execute(() => {
     throw new OutOfRangeException();
 });
 
-// will not be handled
+// will not react
 await policy.execute(async () => {
     throw new OutOfRangeException();
 });
 ```
 
-If the policy is configured to handle multiple kinds of results or exceptions, it will react if any of them occurs:
+If the policy is configured to react on multiple kinds of results or exceptions, it will react if any of them occurs:
 
 ```typescript
 const policy = … // any reactive policy
 
-policy.handleResult(r => r === 5);
-policy.handleResult(r => r === 7);
-policy.handleException(e => e instanceof ConcurrentAccessException);
-policy.handleException(e => e instanceof InvalidArgumentException);
+policy.reactOnResult(r => r === 5);
+policy.reactOnResult(r => r === 7);
+policy.reactOnException(e => e instanceof ConcurrentAccessException);
+policy.reactOnException(e => e instanceof InvalidArgumentException);
 
-// will be handled
+// will react
 await policy.execute(() => 5);
 
-// will be handled
+// will react
 await policy.execute(async () => 5);
 
-// will be handled
+// will react
 await policy.execute(() => 7);
 
-// will be handled
+// will react
 await policy.execute(async () => 7);
 
-// will be handled
+// will react
 await policy.execute(() => {
     throw new ConcurrentAccessException();
 });
 
-// will be handled
+// will react
 await policy.execute(async () => {
     throw new ConcurrentAccessException();
 });
 
-// will be handled
+// will react
 await policy.execute(() => {
     throw new InvalidArgumentException();
 });
 
-// will be handled
+// will react
 await policy.execute(async () => {
     throw new InvalidArgumentException();
 });
 
-// will not be handled
+// will not react
 await policy.execute(() => 2);
 
-// will not be handled
+// will not react
 await policy.execute(async () => 2);
 
-// will not be handled
+// will not react
 await policy.execute(() => {
     throw new OutOfRangeException();
 });
 
-// will not be handled
+// will not react
 await policy.execute(async () => {
     throw new OutOfRangeException();
 });
@@ -241,17 +242,17 @@ You can configure the policy to react on any result and/or to any exception:
 const policy = … // any reactive policy
 
 // react on any result
-policy.handleResult(() => true);
+policy.reactOnResult(() => true);
 
 // react on any exception
-policy.handleException(() => true);
+policy.reactOnException(() => true);
 ```
 
 #### RetryPolicy
 
 `RetryPolicy` claims that many faults are transient and will not occur again after a delay. It allows configuring automatic retries on specified conditions.
 
-Since `RetryPolicy` is a reactive policy, you can configure the policy to retry the execution on specific results or exceptions with `handleResult` and `handleException`. See the [Reactive policies](#reactive-policies) section for details.
+Since `RetryPolicy` is a reactive policy, you need to configure the policy to retry the execution on specific results or exceptions with `reactOnResult` and `reactOnException`. See the [Reactive policies](#reactive-policies) section for details.
 
 Configure how many retries you need or retry forever:
 
@@ -405,6 +406,8 @@ const jitteredBackoff = BackoffStrategyFactory.jitteredBackoff(1, 100, true, ran
 Perform certain actions after the execution and all retries finished:
 
 ```typescript
+import { RetryPolicy } from '@diplomatiq/resily';
+
 // the wrapped method is supposed to return a string
 const policy = new RetryPolicy<string>();
 
@@ -432,7 +435,7 @@ policy.onFinally(() => {
 
 `FallbackPolicy` claims that failures happen, and we can prepare for them. It allows configuring substitute values or automated fallback actions.
 
-Since `FallbackPolicy` is a reactive policy, you can configure the policy to fallback along its fallback chain on specific results or exceptions with `handleResult` and `handleException`. See the [Reactive policies](#reactive-policies) section for details.
+Since `FallbackPolicy` is a reactive policy, you need to configure the policy to fallback along its fallback chain on specific results or exceptions with `reactOnResult` and `reactOnException`. See the [Reactive policies](#reactive-policies) section for details.
 
 Configure the fallback chain:
 
@@ -497,6 +500,8 @@ policy.onFallback(() => {
 Perform certain actions after the execution and all fallbacks finished:
 
 ```typescript
+import { FallbackPolicy } from '@diplomatiq/resily';
+
 // the wrapped method and its fallbacks are supposed to return a string
 const policy = new FallbackPolicy<string>();
 
@@ -515,6 +520,186 @@ policy.onFinally(async () => {
 
 // errors thrown by an onFinallyFn will be caught and ignored
 policy.onFinally(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+#### CircuitBreakerPolicy
+
+`CircuitBreakerPolicy` claims that systems faulting under heavy load can recover easier without even more load — in these cases it's better to fail fast than to keep callers on hold for a long time.
+
+If there are more consecutive faulty responses than the configured number, it breaks the circuit (blocks the executions) for a specified time period.
+
+Since `CircuitBreakerPolicy` is a reactive policy, you need to configure the policy to break the circuit on specific results or exceptions with `reactOnResult` and `reactOnException`. See the [Reactive policies](#reactive-policies) section for details.
+
+The `CircuitBreakerPolicy` has 4 states, and works as follows:
+
+`Closed`
+
+-   This is the initial state.
+-   When closed, the circuit allows executions, while measuring reactive results and exceptions. All results (reactive or not) are returned and all exceptions (reactive or not) are rethrown.
+-   When encountering altogether `numberOfConsecutiveReactionsBeforeCircuitBreak` reactive results or exceptions _consecutively_, the circuit transitions to `Open` state, meaning the circuit is broken.
+
+`Open`
+
+-   While the circuit is in `Open` state, no action wrapped into the policy gets executed. Every call will fail fast with a `BrokenCircuitException`.
+-   The circuit remains open for the specified duration. After the duration elapses, the subsequent execution call transitions the circuit to `AttemptingClose` state.
+
+`AttemptingClose`
+
+-   As the name implies, this state is an attempt to close the circuit.
+-   This is a temporary state of the circuit, existing only between the subsequent execution call to the circuit after the break duration elapsed in `Open` state, and the actual execution of the wrapped method.
+-   The next circuit state is determined by the result or exception produced by the executed method.
+
+    -   If the result or exception is reactive to the policy, the circuit transitions back to `Open` state for the specified circuit break duration.
+    -   If the result or exception is not reactive to the policy, the circuit transitions to `Closed` state.
+
+`Isolated`
+
+-   You can manually break the circuit by calling `policy.isolate()`, from any state. This transitions the circuit to `Isolated` state.
+-   While the circuit is in `Isolated` state, no action wrapped into the policy gets executed. Every call will fail fast with an `IsolatedCircuitException`.
+-   The circuit remains in `Isolated` state until `policy.reset()` is called.
+
+Configure how many consecutive reactions should break the circuit:
+
+```typescript
+import { CircuitBreakerPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CircuitBreakerPolicy<string>();
+
+// break the circuit after encountering 3 reactive results/exceptions consecutively
+policy.breakAfter(3);
+
+// this overwrites the previous value
+policy.breakAfter(5);
+```
+
+Configure how long the circuit should be broken:
+
+```typescript
+import { CircuitBreakerPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CircuitBreakerPolicy<string>();
+
+// break the circuit for 5000 ms
+policy.breakFor(5000);
+
+// this overwrites the previous value
+policy.breakFor(20000);
+```
+
+Manage the circuit manually:
+
+```typescript
+import { CircuitBreakerPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CircuitBreakerPolicy<string>();
+
+// break the circuit manually - it will be open indefinitely
+await policy.isolate();
+
+// get the circuit's current state
+const state = policy.getCircuitState();
+// 'Closed' | 'Open' | 'AttemptingClose' | 'Isolated'
+
+// reset the circuit after isolating - it will close
+if (state === 'Isolated') {
+    await policy.reset();
+}
+```
+
+Perform actions on state transitions:
+
+```typescript
+import { CircuitBreakerPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CircuitBreakerPolicy<string>();
+```
+
+```typescript
+policy.onClose(
+    // onCloseFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onCloseFns, they will run sequentially
+policy.onClose(async () => {
+    // this will be awaited first
+});
+policy.onClose(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onCloseFn will be caught and ignored
+policy.onClose(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+```typescript
+policy.onOpen(
+    // onOpenFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onOpenFns, they will run sequentially
+policy.onOpen(async () => {
+    // this will be awaited first
+});
+policy.onOpen(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onOpenFn will be caught and ignored
+policy.onOpen(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+```typescript
+policy.onAttemptingClose(
+    // onAttemptingCloseFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onAttemptingCloseFns, they will run sequentially
+policy.onAttemptingClose(async () => {
+    // this will be awaited first
+});
+policy.onAttemptingClose(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onAttemptingCloseFn will be caught and ignored
+policy.onAttemptingClose(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+```typescript
+policy.onIsolate(
+    // onIsolateFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onIsolateFns, they will run sequentially
+policy.onIsolate(async () => {
+    // this will be awaited first
+});
+policy.onIsolate(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onIsolateFn will be caught and ignored
+policy.onIsolate(() => {
     // throwing an error has no effect outside the method
     throw new Error();
 });
@@ -539,7 +724,8 @@ On timeout, the promise returned by the policy's `execute` method is rejected wi
 ```typescript
 import { TimeoutException, TimeoutPolicy } from '@diplomatiq/resily';
 
-const policy = new TimeoutPolicy();
+// the wrapped method is supposed to return a string
+const policy = new TimeoutPolicy<string>();
 
 try {
     const result = await policy.execute(async () => {
@@ -559,7 +745,8 @@ Configure how long the waiting period should be:
 ```typescript
 import { TimeoutPolicy } from '@diplomatiq/resily';
 
-const policy = new TimeoutPolicy();
+// the wrapped method is supposed to return a string
+const policy = new TimeoutPolicy<string>();
 policy.timeoutAfter(1000); // timeout after 1000 ms
 ```
 
@@ -568,7 +755,8 @@ Perform certain actions on timeout:
 ```typescript
 import { TimeoutPolicy } from '@diplomatiq/resily';
 
-const policy = new TimeoutPolicy();
+// the wrapped method is supposed to return a string
+const policy = new TimeoutPolicy<string>();
 policy.onTimeout(
     // onTimeoutFns can be sync or async, they will be awaited
     async timedOutAfterMs => {
@@ -596,7 +784,8 @@ Throwing a `TimeoutException` from the executed method is not a timeout, therefo
 ```typescript
 import { TimeoutException, TimeoutPolicy } from '@diplomatiq/resily';
 
-const policy = new TimeoutPolicy();
+// the wrapped method is supposed to return a string
+const policy = new TimeoutPolicy<string>();
 
 let onTimeoutRan = false;
 policy.onTimeout(() => {

@@ -8,6 +8,7 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private readonly fallbackChain: Array<FallbackChainLink<ResultType>> = [];
     private readonly onFallbackFns: Array<OnFallbackFn<ResultType>> = [];
     private readonly onFinallyFns: OnFinallyFn[] = [];
+
     private executing = 0;
 
     public fallback(fallbackChainLink: FallbackChainLink<ResultType>): void {
@@ -46,7 +47,7 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
                 try {
                     const result = await executor();
 
-                    const shouldFallbackOnResult = await this.isResultHandled(result);
+                    const shouldFallbackOnResult = await this.isReactiveToResult(result);
                     if (!shouldFallbackOnResult) {
                         return result;
                     }
@@ -72,7 +73,7 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
                         throw ex;
                     }
 
-                    const shouldFallbackOnException = await this.isExceptionHandled(ex);
+                    const shouldFallbackOnException = await this.isReactiveToException(ex);
                     if (!shouldFallbackOnException) {
                         throw ex;
                     }

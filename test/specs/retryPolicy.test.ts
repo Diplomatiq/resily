@@ -1,7 +1,21 @@
 import { expect } from 'chai';
+import { SinonFakeTimers, useFakeTimers } from 'sinon';
 import { RetryPolicy } from '../../src/policies/reactive/retryPolicy/retryPolicy';
 
 describe('RetryPolicy', (): void => {
+    let clock: SinonFakeTimers;
+
+    beforeEach((): void => {
+        clock = useFakeTimers({
+            toFake: ['Date', 'setTimeout', 'clearTimeout'],
+            shouldAdvanceTime: false,
+        });
+    });
+
+    afterEach((): void => {
+        clock.restore();
+    });
+
     it('should run the synchronous execution callback and return its result by default', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
         const result = await policy.execute((): string => {
@@ -54,9 +68,9 @@ describe('RetryPolicy', (): void => {
         }
     });
 
-    it('should retry on a given result once, then return the result by default', async (): Promise<void> => {
+    it('should retry on a reactive result once, then return the result by default', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
 
         let executed = 0;
 
@@ -69,9 +83,9 @@ describe('RetryPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should not retry on a not given result, but return the result', async (): Promise<void> => {
+    it('should not retry on a non-reactive result, but return the result', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is not cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is not cool.');
 
         let executed = 0;
 
@@ -84,11 +98,11 @@ describe('RetryPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should retry on a given result thrice when setting retryCount to 3, then return the result', async (): Promise<
+    it('should retry on a reactive result thrice when setting retryCount to 3, then return the result', async (): Promise<
         void
     > => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
 
         let executed = 0;
@@ -102,10 +116,10 @@ describe('RetryPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should retry on multiple given results, then return the result', async (): Promise<void> => {
+    it('should retry on multiple reactive results, then return the result', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is the coolest.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is the coolest.');
 
         let executed = 0;
         let result: string;
@@ -127,9 +141,9 @@ describe('RetryPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is the coolest.');
     });
 
-    it('should retry on a given exception once, then throw by default', async (): Promise<void> => {
+    it('should retry on a reactive exception once, then throw by default', async (): Promise<void> => {
         const policy = new RetryPolicy();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
         let executed = 0;
 
@@ -146,9 +160,9 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(2);
     });
 
-    it('should not retry on a not given exception, but throw', async (): Promise<void> => {
+    it('should not retry on a non-reactive exception, but throw', async (): Promise<void> => {
         const policy = new RetryPolicy();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
         let executed = 0;
 
@@ -165,9 +179,11 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(1);
     });
 
-    it('should retry on a given exception thrice when setting retryCount to 3, then throw', async (): Promise<void> => {
+    it('should retry on a reactive exception thrice when setting retryCount to 3, then throw', async (): Promise<
+        void
+    > => {
         const policy = new RetryPolicy();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.retryCount(3);
 
         let executed = 0;
@@ -185,10 +201,10 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(4);
     });
 
-    it('should retry on multiple given exceptions, then throw', async (): Promise<void> => {
+    it('should retry on multiple reactive exceptions, then throw', async (): Promise<void> => {
         const policy = new RetryPolicy();
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'ArgumentException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'ArgumentException');
 
         let executed = 0;
 
@@ -217,12 +233,12 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(4);
     });
 
-    it('should retry on a given result and on a given exception as well, then return/throw', async (): Promise<
+    it('should retry on a reactive result and on a reactive exception as well, then return/throw', async (): Promise<
         void
     > => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
         let executed = 0;
 
@@ -246,7 +262,7 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(4);
     });
 
-    it('should not retry without a given result or exception to be handled', async (): Promise<void> => {
+    it('should not retry without a reactive result or exception to be handled', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
 
         let executed = 0;
@@ -262,7 +278,7 @@ describe('RetryPolicy', (): void => {
 
     it('should retry forever if set', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryForever();
 
         let executed = 0;
@@ -286,7 +302,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.onRetry((result: string | undefined, error: unknown | undefined, currentRetryCount: number): void => {
             expect(result).to.equal('Diplomatiq is cool.');
             expect(error).to.equal(undefined);
@@ -313,7 +329,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
         policy.onRetry((result: string | undefined, error: unknown | undefined, currentRetryCount: number): void => {
             expect(result).to.equal('Diplomatiq is cool.');
@@ -339,7 +355,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.onRetry((result: unknown | undefined, error: unknown | undefined, currentRetryCount: number): void => {
             expect(result).to.equal(undefined);
             expect((error as Error).message).to.equal('TestException');
@@ -389,7 +405,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.retryCount(3);
         policy.onRetry((result: unknown | undefined, error: unknown | undefined, currentRetryCount: number): void => {
             expect(result).to.equal(undefined);
@@ -420,7 +436,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.onRetry(
             async (
                 result: string | undefined,
@@ -452,7 +468,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
         policy.onRetry((result: string | undefined, error: unknown | undefined, currentRetryCount: number): void => {
             expect(result).to.equal('Diplomatiq is cool.');
@@ -497,7 +513,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onRetryExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
         policy.onRetry(
             async (
@@ -564,7 +580,7 @@ describe('RetryPolicy', (): void => {
         let onRetryExecuted = 0;
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
         policy.onRetry((result: string | undefined, error: unknown | undefined, currentRetryCount: number): void => {
             expect(result).to.equal('Diplomatiq is cool.');
@@ -597,7 +613,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is not cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is not cool.');
         policy.retryCount(3);
         policy.onFinally((): void => {
             onFinallyExecuted++;
@@ -620,7 +636,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.onFinally((): void => {
             expect(onFinallyExecuted).to.equal(0);
             onFinallyExecuted++;
@@ -652,7 +668,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.onFinally(
             // eslint-disable-next-line @typescript-eslint/require-await
             async (): Promise<void> => {
@@ -693,7 +709,7 @@ describe('RetryPolicy', (): void => {
         let executed = 0;
         let onFinallyExecuted = 0;
 
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
         policy.onFinally((): void => {
             onFinallyExecuted++;
@@ -708,44 +724,126 @@ describe('RetryPolicy', (): void => {
         expect(onFinallyExecuted).to.equal(1);
     });
 
-    it('should wait for the specified interval before retry if set', async (): Promise<void> => {
+    it('should wait for the specified interval before retry on result if set', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
-        policy.waitBeforeRetry((): number => 100);
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.retryCount(3);
+        policy.waitBeforeRetry((): number => 1000);
 
-        const executionTimestamps: number[] = [];
+        let executed = 0;
 
-        await policy.execute((): string => {
-            executionTimestamps.push(Date.now());
+        const executionPromise = policy.execute((): string => {
+            expect(Date.now()).to.equal(executed * 1000);
+            executed++;
             return 'Diplomatiq is cool.';
         });
 
-        expect(executionTimestamps[1] - executionTimestamps[0])
-            .to.be.at.least(99)
-            .and.to.be.at.most(110);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(4000);
+        expect(Date.now()).to.equal(4000);
+        expect(executed).to.equal(4);
+
+        await executionPromise;
+        expect(executed).to.equal(4);
     });
 
-    it('should wait for the specified interval (depending on the current retry count) before retry if set', async (): Promise<
+    it('should wait for the specified interval (depending on the current retry count) before retry on result if set', async (): Promise<
         void
     > => {
+        const elapsedTimeHelper = (executed: number): number => {
+            return new Array(executed)
+                .fill(undefined)
+                .map((_value, index): number => (index + 1) * 1000)
+                .reduce((acc, curr): number => acc + curr, 0);
+        };
+
         const policy = new RetryPolicy<string>();
-        policy.handleResult((r: string): boolean => r === 'Diplomatiq is cool.');
-        policy.retryCount(2);
-        policy.waitBeforeRetry((currentRetryCount: number): number => currentRetryCount * 100);
+        policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
+        policy.retryCount(3);
+        policy.waitBeforeRetry((currentRetryCount: number): number => currentRetryCount * 1000);
 
-        const executionTimestamps: number[] = [];
+        let executed = 0;
 
-        await policy.execute((): string => {
-            executionTimestamps.push(Date.now());
+        const executionPromise = policy.execute((): string => {
+            expect(Date.now()).to.equal(elapsedTimeHelper(executed));
+            executed++;
             return 'Diplomatiq is cool.';
         });
 
-        expect(executionTimestamps[1] - executionTimestamps[0])
-            .to.be.at.least(99)
-            .and.to.be.at.most(110);
-        expect(executionTimestamps[2] - executionTimestamps[1])
-            .to.be.at.least(198)
-            .and.to.be.at.most(210);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(6000);
+        expect(Date.now()).to.equal(6000);
+        expect(executed).to.equal(4);
+
+        await executionPromise;
+        expect(executed).to.equal(4);
+    });
+
+    it('should wait for the specified interval before retry on exception if set', async (): Promise<void> => {
+        const policy = new RetryPolicy<string>();
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.retryCount(3);
+        policy.waitBeforeRetry((): number => 1000);
+
+        let executed = 0;
+
+        const executionPromise = policy
+            .execute((): string => {
+                expect(Date.now()).to.equal(executed * 1000);
+                executed++;
+                throw new Error('TestException');
+            })
+            .catch((ex: Error): void => {
+                expect(ex.message).to.equal('TestException');
+            });
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(4000);
+        expect(Date.now()).to.equal(4000);
+        expect(executed).to.equal(4);
+
+        await executionPromise;
+        expect(executed).to.equal(4);
+    });
+
+    it('should wait for the specified interval (depending on the current retry count) before retry on exception if set', async (): Promise<
+        void
+    > => {
+        const elapsedTimeHelper = (executed: number): number => {
+            return new Array(executed)
+                .fill(undefined)
+                .map((_value, index): number => (index + 1) * 1000)
+                .reduce((acc, curr): number => acc + curr, 0);
+        };
+
+        const policy = new RetryPolicy<string>();
+        policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
+        policy.retryCount(3);
+        policy.waitBeforeRetry((currentRetryCount: number): number => currentRetryCount * 1000);
+
+        let executed = 0;
+
+        const executionPromise = policy
+            .execute((): string => {
+                expect(Date.now()).to.equal(elapsedTimeHelper(executed));
+                executed++;
+                throw new Error('TestException');
+            })
+            .catch((ex: Error): void => {
+                expect(ex.message).to.equal('TestException');
+            });
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(6000);
+        expect(Date.now()).to.equal(6000);
+        expect(executed).to.equal(4);
+
+        await executionPromise;
+        expect(executed).to.equal(4);
     });
 
     it('should not allow to set retryCount during execution', (): void => {
@@ -845,61 +943,102 @@ describe('RetryPolicy', (): void => {
     it("should be properly mutex'd for running an instance multiple times simultaneously", async (): Promise<void> => {
         const policy = new RetryPolicy<void>();
 
-        await Promise.all([
-            ...new Array(100).fill(undefined).map(
-                async (): Promise<void> =>
-                    policy.execute(
-                        async (): Promise<void> =>
-                            new Promise((resolve): void => {
-                                setTimeout(resolve, 20);
-                            }),
-                    ),
-            ),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.retryCount(1);
+        const attemptPolicyModification = (expectFailure: boolean): void => {
+            try {
+                policy.retryCount(1);
+                if (expectFailure) {
                     expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
                 }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.retryForever();
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.retryForever();
+                if (expectFailure) {
                     expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
                 }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.onRetry((): void => {
-                        // empty
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.onRetry((): void => {
+                    // empty
+                });
+                if (expectFailure) {
+                    expect.fail('did not throw');
+                }
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.waitBeforeRetry((): number => 0);
+                if (expectFailure) {
+                    expect.fail('did not throw');
+                }
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+
+            try {
+                policy.onFinally((): void => {
+                    // empty
+                });
+                if (expectFailure) {
+                    expect.fail('did not throw');
+                }
+            } catch (ex) {
+                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            }
+        };
+
+        const executionResolverAddedDeferreds: Array<{
+            resolverAddedPromise: Promise<void>;
+            resolverAddedResolver: () => void;
+        }> = new Array(100).fill(undefined).map((): {
+            resolverAddedPromise: Promise<void>;
+            resolverAddedResolver: () => void;
+        } => {
+            let resolverAddedResolver!: () => void;
+            const resolverAddedPromise = new Promise<void>((resolve): void => {
+                resolverAddedResolver = resolve;
+            });
+
+            return {
+                resolverAddedPromise,
+                resolverAddedResolver,
+            };
+        });
+
+        const executionResolvers: Array<() => void> = [];
+
+        attemptPolicyModification(false);
+
+        for (let i = 0; i < 100; i++) {
+            policy.execute(
+                // eslint-disable-next-line no-loop-func
+                async (): Promise<void> => {
+                    await new Promise<void>((resolve): void => {
+                        executionResolvers.push(resolve);
+                        executionResolverAddedDeferreds[i].resolverAddedResolver();
                     });
-                    expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
-                }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.waitBeforeRetry((): number => 100);
-                    expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
-                }
-            }),
-            ...new Array(100).fill(undefined).map((): void => {
-                try {
-                    policy.onFinally((): void => {
-                        // empty
-                    });
-                    expect.fail('did not throw');
-                } catch (ex) {
-                    expect((ex as Error).message).to.equal('cannot modify policy during execution');
-                }
-            }),
-        ]);
+                },
+            );
+
+            await executionResolverAddedDeferreds[i].resolverAddedPromise;
+            expect(executionResolvers.length).to.equal(i + 1);
+
+            attemptPolicyModification(true);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            executionResolvers[i]();
+            attemptPolicyModification(true);
+        }
+
+        attemptPolicyModification(false);
     });
 
     it('should throw error when setting retry count to 0', (): void => {
