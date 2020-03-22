@@ -6,7 +6,6 @@ import { OnRetryFn } from './onRetryFn';
 export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private totalRetryCount = 1;
     private readonly onRetryFns: Array<OnRetryFn<ResultType>> = [];
-    private backoffStrategy: BackoffStrategy = (): number => 0;
     private readonly onFinallyFns: OnFinallyFn[] = [];
 
     private executing = 0;
@@ -139,6 +138,8 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
             }
         }
     }
+
+    private backoffStrategy: BackoffStrategy = (): number => 0;
 
     private hasRetryLeft(currentRetryCount: number): boolean {
         return currentRetryCount <= this.totalRetryCount;
