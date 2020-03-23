@@ -3,6 +3,7 @@ import { SinonFakeTimers, useFakeTimers } from 'sinon';
 import { BrokenCircuitException } from '../../src/policies/reactive/circuitBreakerPolicy/brokenCircuitException';
 import { CircuitBreakerPolicy } from '../../src/policies/reactive/circuitBreakerPolicy/circuitBreakerPolicy';
 import { IsolatedCircuitException } from '../../src/policies/reactive/circuitBreakerPolicy/isolatedCircuitException';
+import { PolicyModificationNotAllowedException } from '../../src/types/policyModificationNotAllowedException';
 
 describe('CircuitBreakerPolicy', (): void => {
     let clock: SinonFakeTimers;
@@ -58,9 +59,12 @@ describe('CircuitBreakerPolicy', (): void => {
         const policy = new CircuitBreakerPolicy();
 
         try {
-            await policy.execute((): unknown => {
-                throw new Error('TestException');
-            });
+            await policy.execute(
+                // eslint-disable-next-line @typescript-eslint/require-await
+                async (): Promise<unknown> => {
+                    throw new Error('TestException');
+                },
+            );
             expect.fail('did not throw');
         } catch (ex) {
             expect((ex as Error).message).to.equal('TestException');
@@ -936,7 +940,7 @@ describe('CircuitBreakerPolicy', (): void => {
             policy.breakAfter(1);
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -954,7 +958,7 @@ describe('CircuitBreakerPolicy', (): void => {
             policy.breakFor(1);
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -974,7 +978,7 @@ describe('CircuitBreakerPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -994,7 +998,7 @@ describe('CircuitBreakerPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -1014,7 +1018,7 @@ describe('CircuitBreakerPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -1034,7 +1038,7 @@ describe('CircuitBreakerPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -1048,7 +1052,7 @@ describe('CircuitBreakerPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1057,7 +1061,7 @@ describe('CircuitBreakerPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1068,7 +1072,7 @@ describe('CircuitBreakerPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1079,7 +1083,7 @@ describe('CircuitBreakerPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1090,7 +1094,7 @@ describe('CircuitBreakerPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1101,7 +1105,7 @@ describe('CircuitBreakerPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
         };
 

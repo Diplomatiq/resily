@@ -18,7 +18,6 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
     private state: CircuitState = 'Closed';
     private lastStateTransition: number = Date.now();
     private consecutiveReactionCounter = 0;
-    private executing = 0;
 
     public breakAfter(numberOfConsecutiveReactionsBeforeCircuitBreak: number): void {
         if (!Number.isInteger(numberOfConsecutiveReactionsBeforeCircuitBreak)) {
@@ -33,9 +32,7 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
             throw new Error('numberOfConsecutiveReactionsBeforeCircuitBreak must be less than or equal to 2^53 - 1');
         }
 
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.numberOfConsecutiveReactionsBeforeCircuitBreak = numberOfConsecutiveReactionsBeforeCircuitBreak;
     }
@@ -53,9 +50,7 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
             throw new Error('durationOfCircuitBreakMs must be less than or equal to 2^53 - 1');
         }
 
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.durationOfCircuitBreakMs = durationOfCircuitBreakMs;
     }
@@ -77,104 +72,90 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
     }
 
     public onClose(onCloseFn: OnCloseFn): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onCloseFns.push(onCloseFn);
     }
 
     public onOpen(onOpenFn: OnOpenFn): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onOpenFns.push(onOpenFn);
     }
 
     public onAttemptingClose(onAttemptingCloseFn: OnAttemptingCloseFn): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onAttemptingCloseFns.push(onAttemptingCloseFn);
     }
 
     public onIsolate(onIsolateFn: OnIsolateFn): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onIsolateFns.push(onIsolateFn);
     }
 
-    public async execute(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
+    protected async policyExecutorImpl(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
+        await this.attemptClosingIfShould();
+
+        if (this.state === 'Open') {
+            throw new BrokenCircuitException();
+        }
+
+        if (this.state === 'Isolated') {
+            throw new IsolatedCircuitException();
+        }
+
         try {
-            this.executing++;
+            const result = await fn();
 
-            await this.attemptClosingIfShould();
-
-            if (this.state === 'Open') {
-                throw new BrokenCircuitException();
-            }
-
-            if (this.state === 'Isolated') {
-                throw new IsolatedCircuitException();
-            }
-
-            try {
-                const result = await fn();
-
-                const isReactiveToResult = await this.isReactiveToResult(result);
-                if (!isReactiveToResult) {
-                    this.consecutiveReactionCounter = 0;
-
-                    if (this.state === 'AttemptingClose') {
-                        await this.transitionState('Closed');
-                    }
-
-                    return result;
-                }
+            const isReactiveToResult = await this.isReactiveToResult(result);
+            if (!isReactiveToResult) {
+                this.consecutiveReactionCounter = 0;
 
                 if (this.state === 'AttemptingClose') {
-                    await this.transitionState('Open');
-                }
-
-                if (this.state === 'Closed') {
-                    this.consecutiveReactionCounter++;
-                    if (this.consecutiveReactionCounter >= this.numberOfConsecutiveReactionsBeforeCircuitBreak) {
-                        await this.transitionState('Open');
-                    }
+                    await this.transitionState('Closed');
                 }
 
                 return result;
-            } catch (ex) {
-                const isReactiveToException = await this.isReactiveToException(ex);
-                if (!isReactiveToException) {
-                    this.consecutiveReactionCounter = 0;
+            }
 
-                    if (this.state === 'AttemptingClose') {
-                        await this.transitionState('Closed');
-                    }
+            if (this.state === 'AttemptingClose') {
+                await this.transitionState('Open');
+            }
 
-                    throw ex;
-                }
-
-                if (this.state === 'AttemptingClose') {
+            if (this.state === 'Closed') {
+                this.consecutiveReactionCounter++;
+                if (this.consecutiveReactionCounter >= this.numberOfConsecutiveReactionsBeforeCircuitBreak) {
                     await this.transitionState('Open');
                 }
+            }
 
-                if (this.state === 'Closed') {
-                    this.consecutiveReactionCounter++;
-                    if (this.consecutiveReactionCounter >= this.numberOfConsecutiveReactionsBeforeCircuitBreak) {
-                        await this.transitionState('Open');
-                    }
+            return result;
+        } catch (ex) {
+            const isReactiveToException = await this.isReactiveToException(ex);
+            if (!isReactiveToException) {
+                this.consecutiveReactionCounter = 0;
+
+                if (this.state === 'AttemptingClose') {
+                    await this.transitionState('Closed');
                 }
 
                 throw ex;
             }
-        } finally {
-            this.executing--;
+
+            if (this.state === 'AttemptingClose') {
+                await this.transitionState('Open');
+            }
+
+            if (this.state === 'Closed') {
+                this.consecutiveReactionCounter++;
+                if (this.consecutiveReactionCounter >= this.numberOfConsecutiveReactionsBeforeCircuitBreak) {
+                    await this.transitionState('Open');
+                }
+            }
+
+            throw ex;
         }
     }
 

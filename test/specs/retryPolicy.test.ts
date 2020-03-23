@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { SinonFakeTimers, useFakeTimers } from 'sinon';
 import { RetryPolicy } from '../../src/policies/reactive/retryPolicy/retryPolicy';
+import { PolicyModificationNotAllowedException } from '../../src/types/policyModificationNotAllowedException';
 
 describe('RetryPolicy', (): void => {
     let clock: SinonFakeTimers;
@@ -738,10 +739,24 @@ describe('RetryPolicy', (): void => {
             return 'Diplomatiq is cool.';
         });
 
+        expect(executed).to.equal(1);
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        await clock.tickAsync(4000);
-        expect(Date.now()).to.equal(4000);
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(1000);
+        expect(executed).to.equal(2);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(2000);
+        expect(executed).to.equal(3);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(3000);
         expect(executed).to.equal(4);
 
         await executionPromise;
@@ -771,9 +786,23 @@ describe('RetryPolicy', (): void => {
             return 'Diplomatiq is cool.';
         });
 
+        expect(executed).to.equal(1);
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        await clock.tickAsync(6000);
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(1000);
+        expect(executed).to.equal(2);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(2000);
+        expect(Date.now()).to.equal(3000);
+        expect(executed).to.equal(3);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(3000);
         expect(Date.now()).to.equal(6000);
         expect(executed).to.equal(4);
 
@@ -799,10 +828,24 @@ describe('RetryPolicy', (): void => {
                 expect(ex.message).to.equal('TestException');
             });
 
+        expect(executed).to.equal(1);
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        await clock.tickAsync(4000);
-        expect(Date.now()).to.equal(4000);
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(1000);
+        expect(executed).to.equal(2);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(2000);
+        expect(executed).to.equal(3);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(3000);
         expect(executed).to.equal(4);
 
         await executionPromise;
@@ -836,9 +879,23 @@ describe('RetryPolicy', (): void => {
                 expect(ex.message).to.equal('TestException');
             });
 
+        expect(executed).to.equal(1);
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        await clock.tickAsync(6000);
+        await clock.tickAsync(1000);
+        expect(Date.now()).to.equal(1000);
+        expect(executed).to.equal(2);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(2000);
+        expect(Date.now()).to.equal(3000);
+        expect(executed).to.equal(3);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        await clock.tickAsync(3000);
         expect(Date.now()).to.equal(6000);
         expect(executed).to.equal(4);
 
@@ -860,7 +917,7 @@ describe('RetryPolicy', (): void => {
             policy.retryCount(2);
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -878,7 +935,7 @@ describe('RetryPolicy', (): void => {
             policy.retryForever();
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -898,7 +955,7 @@ describe('RetryPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -916,7 +973,7 @@ describe('RetryPolicy', (): void => {
             policy.waitBeforeRetry((): number => 100);
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -936,7 +993,7 @@ describe('RetryPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -950,7 +1007,7 @@ describe('RetryPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -959,7 +1016,7 @@ describe('RetryPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -970,7 +1027,7 @@ describe('RetryPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -979,7 +1036,7 @@ describe('RetryPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -990,7 +1047,7 @@ describe('RetryPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
         };
 
