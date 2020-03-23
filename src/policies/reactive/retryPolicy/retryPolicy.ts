@@ -8,8 +8,6 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private readonly onRetryFns: Array<OnRetryFn<ResultType>> = [];
     private readonly onFinallyFns: OnFinallyFn[] = [];
 
-    private executing = 0;
-
     public retryCount(retryCount: number): void {
         if (!Number.isInteger(retryCount)) {
             throw new Error('retryCount must be integer');
@@ -23,49 +21,37 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
             throw new Error('retryCount must be less than or equal to 2^53 - 1');
         }
 
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.totalRetryCount = retryCount;
     }
 
     public retryForever(): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.totalRetryCount = Number.POSITIVE_INFINITY;
     }
 
     public onRetry(fn: OnRetryFn<ResultType>): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onRetryFns.push(fn);
     }
 
     public waitBeforeRetry(strategy: BackoffStrategy): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.backoffStrategy = strategy;
     }
 
     public onFinally(fn: OnFinallyFn): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onFinallyFns.push(fn);
     }
 
-    public async execute(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
+    protected async policyExecutorImpl(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
         try {
-            this.executing++;
-
             let currentRetryCount = 0;
 
             // eslint-disable-next-line no-constant-condition
@@ -125,16 +111,12 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                 }
             }
         } finally {
-            try {
-                for (const onFinallyFn of this.onFinallyFns) {
-                    try {
-                        await onFinallyFn();
-                    } catch (onFinallyError) {
-                        // ignored
-                    }
+            for (const onFinallyFn of this.onFinallyFns) {
+                try {
+                    await onFinallyFn();
+                } catch (onFinallyError) {
+                    // ignored
                 }
-            } finally {
-                this.executing--;
             }
         }
     }

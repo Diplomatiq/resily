@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { FallbackChainExhaustedException } from '../../src/policies/reactive/fallbackPolicy/fallbackChainExhaustedException';
 import { FallbackPolicy } from '../../src/policies/reactive/fallbackPolicy/fallbackPolicy';
+import { PolicyModificationNotAllowedException } from '../../src/types/policyModificationNotAllowedException';
 
 describe('FallbackPolicy', (): void => {
     it('should run the synchronous execution callback and return its result by default', async (): Promise<void> => {
@@ -43,9 +44,12 @@ describe('FallbackPolicy', (): void => {
         const policy = new FallbackPolicy();
 
         try {
-            await policy.execute((): unknown => {
-                throw new Error('TestException');
-            });
+            await policy.execute(
+                // eslint-disable-next-line @typescript-eslint/require-await
+                async (): Promise<unknown> => {
+                    throw new Error('TestException');
+                },
+            );
             expect.fail('did not throw');
         } catch (ex) {
             expect((ex as Error).message).to.equal('TestException');
@@ -993,7 +997,7 @@ describe('FallbackPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -1013,7 +1017,7 @@ describe('FallbackPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -1033,7 +1037,7 @@ describe('FallbackPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -1049,7 +1053,7 @@ describe('FallbackPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1060,7 +1064,7 @@ describe('FallbackPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -1071,7 +1075,7 @@ describe('FallbackPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
         };
 

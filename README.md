@@ -80,7 +80,7 @@ _Note: This package is built as an ES6 package. You will not be able to use `req
 
 After installation, you can import policies and other helper classes into your project, then wrap your code into one or more policies.
 
-Every policy extends the abstract `Policy` class, which has an `execute` method. Your code wrapped into the policy gets executed when you invoke `execute`. The `execute` method is asynchronous, so it returns a `Promise` resolving with the return value of the executed method.
+Every policy extends the abstract `Policy` class, which has an `execute` method. Your code wrapped into a policy gets executed when you invoke `execute`. The `execute` method is asynchronous, so it returns a `Promise` resolving with the return value of the executed method (or rejecting with an exception thrown by the method).
 
 The wrapped method can be synchronous or asynchronous, it will be awaited in either case:
 
@@ -123,9 +123,10 @@ Resily offers **reactive** and **proactive** policies:
 
 #### Proactive policies summary
 
-| Policy                              | What does it claim?                                               | How does it work?                                                         |
-| ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [**TimeoutPolicy**](#timeoutpolicy) | After some time, it is unlikely that the call will be successful. | Ensures the caller does not have to wait more than the specified timeout. |
+| Policy                                                  | What does it claim?                                               | How does it work?                                                         |
+| ------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful. | Ensures the caller does not have to wait more than the specified timeout. |
+| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                | Limits the number of concurrently executed actions as specified.          |
 
 ### Reactive policies
 
@@ -802,6 +803,89 @@ try {
 }
 
 // onTimeoutRan is false
+```
+
+#### BulkheadIsolationPolicy
+
+`BulkheadIsolationPolicy` claims that too many concurrent calls can overload a resource. It limits the number of concurrently executed actions as specified.
+
+Method calls executed via the policy are placed into a size-limited bulkhead compartment, limiting the maximum number of concurrent executions.
+
+If the bulkhead compartment is full — meaning the maximum number of concurrent executions is reached —, additional calls can be queued up, ready to be executed whenever a place falls vacant in the bulkhead compartment (i.e. an execution finishes). Queuing up these calls ensures that the resource protected by the policy is always at maximum utilization, while limiting the number of concurrent actions ensures that the resource is not overloaded. The queue is a simple FIFO buffer.
+
+When the policy's `execute` method is invoked with a method to be executed, the policy's operation can be described as follows:
+
+-   `(1)` If there is an execution slot available in the bulkhead compartment, execute the method immediately.
+
+-   `(2)` Else if there is still space in the queue, enqueue the execution intent of the method — without actually executing the method —, then wait asynchronously until the method can be executed.
+
+    An execution intent gets dequeued — and its corresponding method gets executed — each time an execution slot becomes available in the bulkhead compartment.
+
+-   `(3)` Else throw a `BulkheadCompartmentRejectedException`.
+
+From the caller's point of view, this is all transparent: the promise returned by the `execute` method is
+
+-   either eventually resolved with the return value of the wrapped method (cases `(1)` and `(2)`),
+-   or eventually rejected with an exception thrown by the wrapped method (cases `(1)` and `(2)`),
+-   or rejected with a `BulkheadCompartmentRejectedException` (case `(3)`).
+
+Configure the size of the bulkhead compartment:
+
+```typescript
+import { BulkheadIsolationPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new BulkheadIsolationPolicy<string>();
+
+// allow maximum 3 concurrent executions
+policy.maxConcurrency(3);
+
+// this overwrites the previous value
+policy.maxConcurrency(5);
+```
+
+Configure the size of the queue:
+
+```typescript
+import { BulkheadIsolationPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new BulkheadIsolationPolicy<string>();
+
+// allow maximum 3 queued actions
+policy.maxQueuedActions(3);
+
+// this overwrites the previous value
+policy.maxQueuedActions(5);
+```
+
+Get usage information about the bulkhead compartment:
+
+```typescript
+import { BulkheadIsolationPolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new BulkheadIsolationPolicy<string>();
+
+// the number of available (free) execution slots in the bulkhead compartment
+policy.getAvailableSlotsCount();
+
+// the number of available (free) spaces in the queue
+policy.getAvailableQueuedActionsCount();
+```
+
+### Modifying a policy's configuration
+
+All policies' configuration parameters are set via setter methods. This could imply that all policies can be safely reconfigured whenever needed, but providing setter methods instead of constructor parameters is merely because this way the policies are more convenient to use. If you need to reconfigure a policy, you can do that, but not while it is still executing one or more methods: reconfiguring while executing could lead to unexpected side-effects. Therefore, if you tries to reconfigure a policy while executing, a `PolicyModificationNotAllowedException` is thrown.
+
+To safely reconfigure a policy, check whether it is executing or not:
+
+```typescript
+const policy = … // any policy
+
+if (!policy.isExecuting()) {
+    // you can reconfigure the policy
+}
 ```
 
 ## Development
