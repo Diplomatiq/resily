@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { TimeoutException } from '../../src/policies/proactive/timeoutPolicy/timeoutException';
 import { TimeoutPolicy } from '../../src/policies/proactive/timeoutPolicy/timeoutPolicy';
+import { PolicyModificationNotAllowedException } from '../../src/types/policyModificationNotAllowedException';
 
 describe('TimeoutPolicy', (): void => {
     it('should run the execution callback and return its result if no timeout is set', async (): Promise<void> => {
@@ -219,7 +220,7 @@ describe('TimeoutPolicy', (): void => {
             policy.timeoutAfter(10);
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -239,7 +240,7 @@ describe('TimeoutPolicy', (): void => {
             });
             expect.fail('did not throw');
         } catch (ex) {
-            expect((ex as Error).message).to.equal('cannot modify policy during execution');
+            expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
         }
     });
 
@@ -253,7 +254,7 @@ describe('TimeoutPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
 
             try {
@@ -264,7 +265,7 @@ describe('TimeoutPolicy', (): void => {
                     expect.fail('did not throw');
                 }
             } catch (ex) {
-                expect((ex as Error).message).to.equal('cannot modify policy during execution');
+                expect(ex instanceof PolicyModificationNotAllowedException).to.be.true;
             }
         };
 

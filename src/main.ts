@@ -1,5 +1,7 @@
 export { RandomGenerator } from './interfaces/randomGenerator';
 export { Policy } from './policies/policy';
+export { BulkheadCompartmentRejectedException } from './policies/proactive/bulkheadIsolationPolicy/bulkheadCompartmentRejectedException';
+export { BulkheadIsolationPolicy } from './policies/proactive/bulkheadIsolationPolicy/bulkheadIsolationPolicy';
 export { ProactivePolicy } from './policies/proactive/proactivePolicy';
 export { ExecutionException } from './policies/proactive/timeoutPolicy/executionException';
 export { OnTimeoutFn } from './policies/proactive/timeoutPolicy/onTimeoutFn';
@@ -22,5 +24,8 @@ export { BackoffStrategy } from './policies/reactive/retryPolicy/backoffStrategy
 export { BackoffStrategyFactory } from './policies/reactive/retryPolicy/backoffStrategyFactory';
 export { OnRetryFn } from './policies/reactive/retryPolicy/onRetryFn';
 export { RetryPolicy } from './policies/reactive/retryPolicy/retryPolicy';
+export { ExecutedFn } from './types/executedFn';
 export { OnFinallyFn } from './types/onFinallyFn';
+export { PolicyModificationNotAllowedException } from './types/policyModificationNotAllowedException';
 export { Predicate } from './types/predicate';
+export { SuccessDeferred } from './utils/successDeferred';

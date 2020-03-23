@@ -9,36 +9,26 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
     private readonly onFallbackFns: Array<OnFallbackFn<ResultType>> = [];
     private readonly onFinallyFns: OnFinallyFn[] = [];
 
-    private executing = 0;
-
     public fallback(fallbackChainLink: FallbackChainLink<ResultType>): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.fallbackChain.push(fallbackChainLink);
     }
 
     public onFallback(onFallbackFn: OnFallbackFn<ResultType>): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onFallbackFns.push(onFallbackFn);
     }
 
     public onFinally(fn: OnFinallyFn): void {
-        if (this.executing > 0) {
-            throw new Error('cannot modify policy during execution');
-        }
+        this.throwForPolicyModificationIfExecuting();
 
         this.onFinallyFns.push(fn);
     }
 
-    public async execute(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
+    protected async policyExecutorImpl(fn: () => ResultType | Promise<ResultType>): Promise<ResultType> {
         try {
-            this.executing++;
-
             const remainingFallbackChain = [...this.fallbackChain];
             let executor = fn;
 
@@ -97,16 +87,12 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
                 }
             }
         } finally {
-            try {
-                for (const onFinallyFn of this.onFinallyFns) {
-                    try {
-                        await onFinallyFn();
-                    } catch (onFinallyError) {
-                        // ignored
-                    }
+            for (const onFinallyFn of this.onFinallyFns) {
+                try {
+                    await onFinallyFn();
+                } catch (onFinallyError) {
+                    // ignored
                 }
-            } finally {
-                this.executing--;
             }
         }
     }
