@@ -1,0 +1,74 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+    lint-build-test-scan:
+        name: Lint, build, test, scan
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node: [13, 12, 11, 10]
+            fail-fast: false
+
+        steps:
+            - name: Checkout push or pull request HEAD
+              uses: actions/checkout@v2
+            - name: Convert the shallow clone to an unshallow one
+              run: git fetch --unshallow
+            - name: Request the number of commits on the pull request
+              id: number_of_commits_on_pr_request
+              if: github.event_name == 'pull_request'
+              uses: octokit/graphql-action@v2.x
+              with:
+                  query: |
+                      query NumberOfCommitsOnPR($repositoryowner: String!, $repositoryname: String!, $prnumber: Int!) {
+                          repository(owner: $repositoryowner, name: $repositoryname) {
+                              pullRequest(number: $prnumber) {
+                                  commits {
+                                      totalCount
+                                  }
+                              }
+                          }
+                      }
+                  repositoryowner: ${{ github.event.repository.owner.login }}
+                  repositoryname: ${{ github.event.repository.name }}
+                  prnumber: ${{ github.event.number }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Get the number of commits on the pull request from the response
+              id: number_of_commits_on_pr_result
+              if: github.event_name == 'pull_request'
+              uses: gr2m/get-json-paths-action@v1.x
+              with:
+                  json: ${{ steps.number_of_commits_on_pr_request.outputs.data }}
+                  commits_count: 'repository.pullRequest.commits.totalCount'
+            - name: Check if the number of commits on the pull request is equal to one
+              if: github.event_name == 'pull_request'
+              run: |
+                  if [ "${{ steps.number_of_commits_on_pr_result.outputs.commits_count }}" -ne 1 ]; then
+                      echo "The pull request must consist of exactly one commit. Please squash your commits into one."
+                      exit 1
+                  fi
+            - name: Set up Node.js version
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node }}
+            - name: Install dependencies
+              run: npm ci
+            - name: Lint the commit message of the pull request
+              if: github.event_name == 'pull_request'
+              run: npx commitlint --from HEAD^ --to HEAD --config .commitlintrc.json
+            - name: Lint the code
+              run: npm run lint
+            - name: Build the code
+              run: npm run build
+            - name: Test the code
+              run: npm run test
+            - name: Scan the code with SonarCloud
+              if: github.event_name == 'push' && matrix.node == 13
+              uses: sonarsource/sonarcloud-github-action@v1.1
+              env:
+                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
