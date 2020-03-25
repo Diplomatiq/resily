@@ -1,21 +1,19 @@
 {
   "name": "@diplomatiq/resily",
   "version": "0.0.0",
-  "description": "Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Circuit Breaker, Timeout, Bulkhead Isolation, and Fallback. Inspired by App-vNext/Polly.",
+  "description": "Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Fallback, Circuit Breaker, Timeout, Bulkhead Isolation, and Cache. Inspired by App-vNext/Polly.",
   "main": "dist/main.js",
   "module": "dist/main.js",
   "types": "dist/main.d.ts",
   "engines": {
-    "node": ">=9.0.0"
+    "node": ">=10.0.0"
   },
   "scripts": {
     "build": "tsc",
-    "build-and-test-everything": "npm run lint && npm run build && npm run test",
     "check-release-tag": "node --experimental-modules scripts/check-release-tag.mjs",
     "clean": "rm -r ./dist/",
     "lint": "eslint ./src/ ./test/ --ext .ts",
-    "prepare": "npm run build-and-test-everything",
-    "prepublishOnly": "npm run check-release-tag",
+    "prepublishOnly": "npm run check-release-tag && npm run lint && npm run build && npm run test",
     "test": "cross-env-shell TS_NODE_PROJECT=tsconfig.test.json nyc --reporter=lcov --reporter=text mocha --require ts-node/register --require source-map-support/register --require esm --recursive test/specs/**/*.test.ts",
     "version": "node --experimental-modules scripts/sync-sonar-version.mjs && conventional-changelog -p angular -i CHANGELOG.md -s && git add sonar-project.properties CHANGELOG.md"
   },
@@ -40,7 +38,6 @@
   "homepage": "https://github.com/Diplomatiq/resily#readme",
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
-    "@commitlint/travis-cli": "^8.3.5",
     "@diplomatiq/eslint-config-tslib": "^3.0.0",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
@@ -65,7 +62,7 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-push": "npm run build-and-test-everything"
+      "pre-push": "npm run lint && npm run build && npm run test"
     }
   },
   "dependencies": {
