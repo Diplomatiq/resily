@@ -1,10 +1,10 @@
 # resily
 
-Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Circuit Breaker, Timeout, Bulkhead Isolation, and Fallback. Inspired by [App-vNext/Polly](https://github.com/App-vNext/Polly).
+Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Fallback, Circuit Breaker, Timeout, Bulkhead Isolation, and Cache. Inspired by [App-vNext/Polly](https://github.com/App-vNext/Polly).
 
 <p>
-<a href="https://travis-ci.org/Diplomatiq/resily" target="_blank" style="text-decoration: none;">
-  <img src="https://img.shields.io/travis/Diplomatiq/resily.svg" alt="build status">
+<a href="https://github.com/Diplomatiq/resily/actions?query=workflow%3ACI" target="_blank" style="text-decoration: none;">
+  <img src="https://github.com/Diplomatiq/resily/workflows/CI/badge.svg" alt="build status">
 </a>
 
 <a href="https://github.com/Diplomatiq/resily" target="_blank" style="text-decoration: none;">
