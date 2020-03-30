@@ -2,6 +2,7 @@ export { RandomGenerator } from './interfaces/randomGenerator';
 export { Policy } from './policies/policy';
 export { BulkheadCompartmentRejectedException } from './policies/proactive/bulkheadIsolationPolicy/bulkheadCompartmentRejectedException';
 export { BulkheadIsolationPolicy } from './policies/proactive/bulkheadIsolationPolicy/bulkheadIsolationPolicy';
+export { NopPolicy } from './policies/proactive/nopPolicy/nopPolicy';
 export { ProactivePolicy } from './policies/proactive/proactivePolicy';
 export { ExecutionException } from './policies/proactive/timeoutPolicy/executionException';
 export { OnTimeoutFn } from './policies/proactive/timeoutPolicy/onTimeoutFn';
