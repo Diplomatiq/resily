@@ -123,10 +123,11 @@ Resily offers **reactive** and **proactive** policies:
 
 #### Proactive policies summary
 
-| Policy                                                  | What does it claim?                                               | How does it work?                                                         |
-| ------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful. | Ensures the caller does not have to wait more than the specified timeout. |
-| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                | Limits the number of concurrently executed actions as specified.          |
+| Policy                                                  | What does it claim?                                               | How does it work?                                                                                       |
+| ------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful. | Ensures the caller does not have to wait more than the specified timeout.                               |
+| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                | Limits the number of concurrently executed actions as specified.                                        |
+| [**NopPolicy**](#noppolicy)                             | Does not claim anything.                                          | Executes the wrapped method, and returns its result or throws its exceptions, without any intervention. |
 
 ### Reactive policies
 
@@ -873,6 +874,10 @@ policy.getAvailableSlotsCount();
 // the number of available (free) spaces in the queue
 policy.getAvailableQueuedActionsCount();
 ```
+
+#### NopPolicy
+
+`NopPolicy` does not claim anything. It executes the wrapped method, and returns its result or throws its exceptions, without any intervention.
 
 ### Modifying a policy's configuration
 
