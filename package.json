@@ -42,7 +42,7 @@
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.9.8",
-    "@types/sinon": "^7.5.2",
+    "@types/sinon": "^9.0.0",
     "chai": "^4.2.0",
     "conventional-changelog-cli": "^2.0.31",
     "cross-env": "^7.0.2",
