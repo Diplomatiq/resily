@@ -123,11 +123,12 @@ Resily offers **reactive** and **proactive** policies:
 
 #### Proactive policies summary
 
-| Policy                                                  | What does it claim?                                               | How does it work?                                                                                       |
-| ------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful. | Ensures the caller does not have to wait more than the specified timeout.                               |
-| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                | Limits the number of concurrently executed actions as specified.                                        |
-| [**NopPolicy**](#noppolicy)                             | Does not claim anything.                                          | Executes the wrapped method, and returns its result or throws its exceptions, without any intervention. |
+| Policy                                                  | What does it claim?                                                                                                        | How does it work?                                                                                       |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful.                                                          | Ensures the caller does not have to wait more than the specified timeout.                               |
+| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                                                                         | Limits the number of concurrently executed actions as specified.                                        |
+| [**CachePolicy**](#cachepolicy)                         | Within a given time frame, a system may respond with the same answer, thus there is no need to actually perform the query. | Retrieves the response from a local cache within the time frame, after storing it on the first query.   |
+| [**NopPolicy**](#noppolicy)                             | Does not claim anything.                                                                                                   | Executes the wrapped method, and returns its result or throws its exceptions, without any intervention. |
 
 ### Reactive policies
 
@@ -873,6 +874,122 @@ policy.getAvailableSlotsCount();
 
 // the number of available (free) spaces in the queue
 policy.getAvailableQueuedActionsCount();
+```
+
+#### CachePolicy
+
+`CachePolicy` claims that within a given time frame, a system may respond with the same answer, thus there is no need to actually perform the query. It retrieves the response from a local cache within the time frame, after storing it on the first query.
+
+The `CachePolicy` is implemented as a simple in-memory cache. It works as follows:
+
+-   For the first time (and every further time the cache is invalid), the `CachePolicy` executes the wrapped method, and caches its result.
+-   For subsequent execution calls, the cached result is returned and the wrapped method is not executed — as long as the cache remains valid.
+-   The cache is valid as long as it is not expired (see time to live settings below) or manually invalidated.
+
+Configure how long the cache should be valid:
+
+```typescript
+import { CachePolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CachePolicy<string>;
+
+// the cache is valid for 10000ms from the moment the value is stored in the cache
+policy.timeToLive('relative', 10000);
+
+// the cache is valid as long as Date.now() < 772149600000
+// this overwrites the previous setting
+policy.timeToLive('absolute', 772149600000);
+
+// the cache is valid for 10000ms from the moment the value is stored in or retrieved from the cache
+// this overwrites the previous setting
+policy.timeToLive('sliding', 10000);
+```
+
+Invalidate the cache manually, causing the next `execute` call to run the wrapped method:
+
+```typescript
+import { CachePolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CachePolicy<string>;
+
+policy.invalidate();
+```
+
+Perform actions on caching events:
+
+```typescript
+import { CachePolicy } from '@diplomatiq/resily';
+
+// the wrapped method is supposed to return a string
+const policy = new CachePolicy<string>;
+```
+
+```typescript
+// perform an action before the value is retrieved from the cache
+policy.onCacheGet(
+    // onCacheGetFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onCacheGetFns, they will run sequentially
+policy.onCacheGet(async () => {
+    // this will be awaited first
+});
+policy.onCacheGet(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onCacheGetFn will be caught and ignored
+policy.onCacheGet(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+```typescript
+// perform an action before the wrapped method is executed and its result is cached
+policy.onCacheMiss(
+    // onCacheMissFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onCacheMissFns, they will run sequentially
+policy.onCacheMiss(async () => {
+    // this will be awaited first
+});
+policy.onCacheMiss(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onCacheMissFn will be caught and ignored
+policy.onCacheMiss(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
+```
+
+```typescript
+// perform an action after the wrapped method is executed and its result is cached
+policy.onCachePut(
+    // onCachePutFns can be sync or async, they will be awaited
+    async () => {},
+);
+
+// you can set multiple onCachePutFns, they will run sequentially
+policy.onCachePut(async () => {
+    // this will be awaited first
+});
+policy.onCachePut(async () => {
+    // then this will be awaited
+});
+
+// errors thrown by an onCachePutFn will be caught and ignored
+policy.onCachePut(() => {
+    // throwing an error has no effect outside the method
+    throw new Error();
+});
 ```
 
 #### NopPolicy
