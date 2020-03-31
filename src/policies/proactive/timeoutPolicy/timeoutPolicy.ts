@@ -25,7 +25,7 @@ export class TimeoutPolicy<ResultType> extends ProactivePolicy<ResultType> {
         this.timeoutMs = timeoutMs;
     }
 
-    public onTimeout(fn: (timedOutAfterMs: number) => void | Promise<void>): void {
+    public onTimeout(fn: OnTimeoutFn): void {
         this.throwForPolicyModificationIfExecuting();
 
         this.onTimeoutFns.push(fn);
