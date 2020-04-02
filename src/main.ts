@@ -1,5 +1,7 @@
 export { RandomGenerator } from './interfaces/randomGenerator';
+export { NopPolicy } from './policies/nopPolicy';
 export { Policy } from './policies/policy';
+export { PolicyCombination } from './policies/policyCombination';
 export { BulkheadCompartmentRejectedException } from './policies/proactive/bulkheadIsolationPolicy/bulkheadCompartmentRejectedException';
 export { BulkheadIsolationPolicy } from './policies/proactive/bulkheadIsolationPolicy/bulkheadIsolationPolicy';
 export { CachePolicy } from './policies/proactive/cachePolicy/cachePolicy';
@@ -7,7 +9,6 @@ export { OnCacheGetFn } from './policies/proactive/cachePolicy/onCacheGetFn';
 export { OnCacheMissFn } from './policies/proactive/cachePolicy/onCacheMissFn';
 export { OnCachePutFn } from './policies/proactive/cachePolicy/onCachePutFn';
 export { TimeToLiveStrategy } from './policies/proactive/cachePolicy/timeToLiveStrategy';
-export { NopPolicy } from './policies/proactive/nopPolicy/nopPolicy';
 export { ProactivePolicy } from './policies/proactive/proactivePolicy';
 export { ExecutionException } from './policies/proactive/timeoutPolicy/executionException';
 export { OnTimeoutFn } from './policies/proactive/timeoutPolicy/onTimeoutFn';
