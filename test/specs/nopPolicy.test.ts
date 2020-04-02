@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { NopPolicy } from '../../src/policies/proactive/nopPolicy/nopPolicy';
+import { NopPolicy } from '../../src/policies/nopPolicy';
 
 describe('NopPolicy', (): void => {
     it('should run the synchronous execution callback and return its result', async (): Promise<void> => {
