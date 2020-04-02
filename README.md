@@ -123,12 +123,18 @@ Resily offers **reactive** and **proactive** policies:
 
 #### Proactive policies summary
 
-| Policy                                                  | What does it claim?                                                                                                        | How does it work?                                                                                       |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful.                                                          | Ensures the caller does not have to wait more than the specified timeout.                               |
-| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                                                                         | Limits the number of concurrently executed actions as specified.                                        |
-| [**CachePolicy**](#cachepolicy)                         | Within a given time frame, a system may respond with the same answer, thus there is no need to actually perform the query. | Retrieves the response from a local cache within the time frame, after storing it on the first query.   |
-| [**NopPolicy**](#noppolicy)                             | Does not claim anything.                                                                                                   | Executes the wrapped method, and returns its result or throws its exceptions, without any intervention. |
+| Policy                                                  | What does it claim?                                                                                                        | How does it work?                                                                                     |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [**TimeoutPolicy**](#timeoutpolicy)                     | After some time, it is unlikely that the call will be successful.                                                          | Ensures the caller does not have to wait more than the specified timeout.                             |
+| [**BulkheadIsolationPolicy**](#bulkheadisolationpolicy) | Too many concurrent calls can overload a resource.                                                                         | Limits the number of concurrently executed actions as specified.                                      |
+| [**CachePolicy**](#cachepolicy)                         | Within a given time frame, a system may respond with the same answer, thus there is no need to actually perform the query. | Retrieves the response from a local cache within the time frame, after storing it on the first query. |
+
+#### Helpers and utilities summary
+
+| Policy                                      | What does it claim?                            | How does it work?                                                                                       |
+| ------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [**NopPolicy**](#noppolicy)                 | Does not claim anything.                       | Executes the wrapped method, and returns its result or throws its exceptions, without any intervention. |
+| [**PolicyCombination**](#policycombination) | Combining policies leads to better resilience. | Allows any policies to be combined together.                                                            |
 
 ### Reactive policies
 
@@ -992,9 +998,50 @@ policy.onCachePut(() => {
 });
 ```
 
+### Helpers and utilities
+
 #### NopPolicy
 
 `NopPolicy` does not claim anything. It executes the wrapped method, and returns its result or throws its exceptions, without any intervention.
+
+#### PolicyCombination
+
+Policies can be combined in multiple ways. Given the following:
+
+```typescript
+import { FallbackPolicy, RetryPolicy, TimeoutPolicy } from '@diplomatiq/resily';
+
+const timeoutPolicy = new TimeoutPolicy();
+const retryPolicy = new RetryPolicy();
+const fallbackPolicy = new FallbackPolicy();
+
+const fn = () => {
+    // the executed code
+};
+```
+
+The naïve way to combine the above policies would be:
+
+```typescript
+fallbackPolicy.execute(() => retryPolicy.execute(() => timeoutPolicy.execute(fn)));
+```
+
+The previous example is equivalent to the following:
+
+```typescript
+fallbackPolicy.wrap(retryPolicy);
+retryPolicy.wrap(timeoutPolicy);
+
+fallbackPolicy.execute(fn);
+```
+
+And also equivalent to the following:
+
+```typescript
+PolicyCombination.wrap([fallbackPolicy, retryPolicy, timeoutPolicy]).execute(fn);
+```
+
+PolicyCombination expects at least two policies to be combined.
 
 ### Modifying a policy's configuration
 
