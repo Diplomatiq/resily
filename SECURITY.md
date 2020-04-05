@@ -4,7 +4,7 @@
 
 At Diplomatiq, security is always in primary focus. We would like to thank you for your security contributions.
 
-1. Please email us the found vulnerability — with detailed description — to the security@diplomatiq.org address. If possible, encrypt your email's contents with our PGP key (https://diplomatiq.org/pgp-key.txt) and sign it with yours.
+1. Please email us the found vulnerability — with detailed description — to the security@diplomatiq.org address. If possible, encrypt your email's contents with our PGP key (https://www.diplomatiq.org/pgp-key.txt) and sign it with yours.
 2. Your email will be acknowledged within 48 hours by the Security Team.
 3. You will receive a detailed response about the next steps of handling the vulnerability within total 96 hours. The Security Team will do their best to keep you informed about the progress towards fixing and publicly announcing the vulnerability, and may ask for additional input.
 
