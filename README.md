@@ -1,4 +1,6 @@
-# resily
+<p align="center">
+  <img src="logo.png" width="500px">
+</p>
 
 Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Fallback, Circuit Breaker, Timeout, Bulkhead Isolation, and Cache. Inspired by [App-vNext/Polly](https://github.com/App-vNext/Polly).
 
