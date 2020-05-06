@@ -1,3 +1,8 @@
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/Diplomatiq/resily/compare/v1.0.0...v1.1.0) (2020-05-06)
+
+
+
 <a name="1.0.0"></a>
 # 1.0.0 (2020-04-02)
 
