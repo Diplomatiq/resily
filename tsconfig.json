@@ -2,7 +2,7 @@
     "compilerOptions": {
         "declaration": true,
         "declarationDir": "dist",
-        "module": "esnext",
+        "module": "ES6",
         "moduleResolution": "node",
         "noErrorTruncation": true,
         "noFallthroughCasesInSwitch": true,
@@ -12,7 +12,7 @@
         "outDir": "dist",
         "rootDir": "src",
         "strict": true,
-        "target": "esnext"
+        "target": "ES6"
     },
     "files": ["src/main.ts"]
 }
