@@ -56,11 +56,7 @@ export class TimeoutPolicy<ResultType> extends ProactivePolicy<ResultType> {
             const typedEx: ExecutionException | TimeoutException = ex;
             if (typedEx instanceof TimeoutException) {
                 for (const onTimeoutFn of this.onTimeoutFns) {
-                    try {
-                        await onTimeoutFn(typedEx.timedOutAfterMs);
-                    } catch (onTimeoutError) {
-                        // ignored
-                    }
+                    await onTimeoutFn(typedEx.timedOutAfterMs);
                 }
 
                 throw typedEx;
