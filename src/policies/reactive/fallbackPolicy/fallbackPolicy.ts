@@ -50,11 +50,7 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
                     executor = nextExecutor;
 
                     for (const onFallbackFn of this.onFallbackFns) {
-                        try {
-                            await onFallbackFn(result, undefined);
-                        } catch (onFallbackError) {
-                            // ignored
-                        }
+                        await onFallbackFn(result, undefined);
                     }
 
                     continue;
@@ -76,11 +72,7 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
                     executor = nextExecutor;
 
                     for (const onFallbackFn of this.onFallbackFns) {
-                        try {
-                            await onFallbackFn(undefined, ex);
-                        } catch (onFallbackError) {
-                            // ignored
-                        }
+                        await onFallbackFn(undefined, ex);
                     }
 
                     continue;
@@ -88,11 +80,7 @@ export class FallbackPolicy<ResultType> extends ReactivePolicy<ResultType> {
             }
         } finally {
             for (const onFinallyFn of this.onFinallyFns) {
-                try {
-                    await onFinallyFn();
-                } catch (onFinallyError) {
-                    // ignored
-                }
+                await onFinallyFn();
             }
         }
     }
