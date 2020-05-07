@@ -308,12 +308,6 @@ policy.onRetry(async () => {
 policy.onRetry(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onRetryFn will be caught and ignored
-policy.onRetry(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 Wait for the specified number of milliseconds before retrying:
@@ -434,12 +428,6 @@ policy.onFinally(async () => {
 policy.onFinally(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onFinallyFn will be caught and ignored
-policy.onFinally(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 #### FallbackPolicy
@@ -500,12 +488,6 @@ policy.onFallback(async () => {
 policy.onFallback(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onFallbackFn will be caught and ignored
-policy.onFallback(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 Perform certain actions after the execution and all fallbacks finished:
@@ -527,12 +509,6 @@ policy.onFinally(async () => {
 });
 policy.onFinally(async () => {
     // then this will be awaited
-});
-
-// errors thrown by an onFinallyFn will be caught and ignored
-policy.onFinally(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
 });
 ```
 
@@ -645,12 +621,6 @@ policy.onClose(async () => {
 policy.onClose(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onCloseFn will be caught and ignored
-policy.onClose(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 ```typescript
@@ -665,12 +635,6 @@ policy.onOpen(async () => {
 });
 policy.onOpen(async () => {
     // then this will be awaited
-});
-
-// errors thrown by an onOpenFn will be caught and ignored
-policy.onOpen(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
 });
 ```
 
@@ -687,12 +651,6 @@ policy.onAttemptingClose(async () => {
 policy.onAttemptingClose(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onAttemptingCloseFn will be caught and ignored
-policy.onAttemptingClose(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 ```typescript
@@ -707,12 +665,6 @@ policy.onIsolate(async () => {
 });
 policy.onIsolate(async () => {
     // then this will be awaited
-});
-
-// errors thrown by an onIsolateFn will be caught and ignored
-policy.onIsolate(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
 });
 ```
 
@@ -781,12 +733,6 @@ policy.onTimeout(async () => {
 });
 policy.onTimeout(async () => {
     // then this will be awaited
-});
-
-// errors thrown by an onTimeoutFn will be caught and ignored
-policy.onTimeout(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
 });
 ```
 
@@ -948,12 +894,6 @@ policy.onCacheGet(async () => {
 policy.onCacheGet(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onCacheGetFn will be caught and ignored
-policy.onCacheGet(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 ```typescript
@@ -970,12 +910,6 @@ policy.onCacheMiss(async () => {
 policy.onCacheMiss(async () => {
     // then this will be awaited
 });
-
-// errors thrown by an onCacheMissFn will be caught and ignored
-policy.onCacheMiss(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
-});
 ```
 
 ```typescript
@@ -991,12 +925,6 @@ policy.onCachePut(async () => {
 });
 policy.onCachePut(async () => {
     // then this will be awaited
-});
-
-// errors thrown by an onCachePutFn will be caught and ignored
-policy.onCachePut(() => {
-    // throwing an error has no effect outside the method
-    throw new Error();
 });
 ```
 

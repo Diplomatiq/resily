@@ -175,11 +175,7 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
             case 'Closed': {
                 this.validateTransition(new Set(['AttemptingClose', 'Isolated']));
                 for (const onCloseFn of this.onCloseFns) {
-                    try {
-                        await onCloseFn();
-                    } catch (ex) {
-                        // ignored
-                    }
+                    await onCloseFn();
                 }
                 break;
             }
@@ -187,11 +183,7 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
             case 'Open': {
                 this.validateTransition(new Set(['Closed', 'AttemptingClose']));
                 for (const onOpenFn of this.onOpenFns) {
-                    try {
-                        await onOpenFn();
-                    } catch (ex) {
-                        // ignored
-                    }
+                    await onOpenFn();
                 }
                 break;
             }
@@ -199,11 +191,7 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
             case 'AttemptingClose': {
                 this.validateTransition(new Set(['Open']));
                 for (const onAttemptingCloseFn of this.onAttemptingCloseFns) {
-                    try {
-                        await onAttemptingCloseFn();
-                    } catch (ex) {
-                        // ignored
-                    }
+                    await onAttemptingCloseFn();
                 }
                 break;
             }
@@ -211,11 +199,7 @@ export class CircuitBreakerPolicy<ResultType> extends ReactivePolicy<ResultType>
             case 'Isolated': {
                 this.validateTransition(new Set(['Closed', 'Open', 'AttemptingClose']));
                 for (const onIsolateFn of this.onIsolateFns) {
-                    try {
-                        await onIsolateFn();
-                    } catch (ex) {
-                        // ignored
-                    }
+                    await onIsolateFn();
                 }
                 break;
             }

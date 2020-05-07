@@ -75,11 +75,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                     }
 
                     for (const onRetryFn of this.onRetryFns) {
-                        try {
-                            await onRetryFn(result, undefined, currentRetryCount);
-                        } catch (onRetryError) {
-                            // ignored
-                        }
+                        await onRetryFn(result, undefined, currentRetryCount);
                     }
 
                     continue;
@@ -100,11 +96,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
                     }
 
                     for (const onRetryFn of this.onRetryFns) {
-                        try {
-                            await onRetryFn(undefined, ex, currentRetryCount);
-                        } catch (onRetryError) {
-                            // ignored
-                        }
+                        await onRetryFn(undefined, ex, currentRetryCount);
                     }
 
                     continue;
@@ -112,11 +104,7 @@ export class RetryPolicy<ResultType> extends ReactivePolicy<ResultType> {
             }
         } finally {
             for (const onFinallyFn of this.onFinallyFns) {
-                try {
-                    await onFinallyFn();
-                } catch (onFinallyError) {
-                    // ignored
-                }
+                await onFinallyFn();
             }
         }
     }
