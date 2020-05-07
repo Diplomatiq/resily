@@ -1,6 +1,6 @@
 {
   "name": "@diplomatiq/resily",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Resily is a TypeScript resilience and transient-fault-handling library that allows developers to express policies such as Retry, Fallback, Circuit Breaker, Timeout, Bulkhead Isolation, and Cache. Inspired by App-vNext/Polly.",
   "main": "dist/main.js",
   "module": "dist/main.js",
