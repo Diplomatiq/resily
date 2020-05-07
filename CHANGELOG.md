@@ -1,3 +1,13 @@
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/Diplomatiq/resily/compare/v1.0.0...v1.2.0) (2020-05-07)
+
+
+### Features
+
+* Do not suppress errors on policy hooks ([56c5198](https://github.com/Diplomatiq/resily/commit/56c5198))
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/Diplomatiq/resily/compare/v1.0.0...v1.1.0) (2020-05-06)
 
