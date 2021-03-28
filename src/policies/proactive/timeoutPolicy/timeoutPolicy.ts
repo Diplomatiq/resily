@@ -53,7 +53,7 @@ export class TimeoutPolicy<ResultType> extends ProactivePolicy<ResultType> {
         try {
             return await Promise.race([executionPromise, timeoutPromise]);
         } catch (ex) {
-            const typedEx: ExecutionException | TimeoutException = ex;
+            const typedEx: ExecutionException | TimeoutException = ex as ExecutionException | TimeoutException;
             if (typedEx instanceof TimeoutException) {
                 for (const onTimeoutFn of this.onTimeoutFns) {
                     await onTimeoutFn(typedEx.timedOutAfterMs);

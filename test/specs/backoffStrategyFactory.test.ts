@@ -238,9 +238,7 @@ describe('BackoffStrategyFactory', (): void => {
                 .and.to.be.at.most(100);
         });
 
-        it('should produce a jittered backoff strategy with an immediate first retry if set', async (): Promise<
-            void
-        > => {
+        it('should produce a jittered backoff strategy with an immediate first retry if set', async (): Promise<void> => {
             const entropyProvider = new NodeJsEntropyProvider();
             const randomGenerator = new RandomGenerator(entropyProvider);
             const strategy = BackoffStrategyFactory.jitteredBackoff(1, 100, true, randomGenerator);
@@ -264,10 +262,8 @@ describe('BackoffStrategyFactory', (): void => {
                 .and.to.be.at.most(100);
         });
 
-        it('should work with the default random generator where window.crypto.getRandomValues() is available', async (): Promise<
-            void
-        > => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        it('should work with the default random generator where window.crypto.getRandomValues() is available', async (): Promise<void> => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             global.window = windowMock();
 
@@ -293,7 +289,7 @@ describe('BackoffStrategyFactory', (): void => {
                 .to.be.at.least(0)
                 .and.to.be.at.most(100);
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             global.window = undefined;
         });

@@ -1,5 +1,5 @@
 export class SuccessDeferred<T> {
-    public resolve!: (value?: T | Promise<T>) => void;
+    public resolve!: (value: T | PromiseLike<T>) => void;
     public promise: Promise<T>;
 
     public constructor() {

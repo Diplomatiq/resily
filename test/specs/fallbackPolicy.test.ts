@@ -38,9 +38,7 @@ describe('FallbackPolicy', (): void => {
         }
     });
 
-    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<
-        void
-    > => {
+    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<void> => {
         const policy = new FallbackPolicy();
 
         try {
@@ -56,9 +54,7 @@ describe('FallbackPolicy', (): void => {
         }
     });
 
-    it('should fallback on a reactive (i.e. wrong) result, then return the result of the synchronous fallback function', async (): Promise<
-        void
-    > => {
+    it('should fallback on a reactive (i.e. wrong) result, then return the result of the synchronous fallback function', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.fallback((): string => {
@@ -72,9 +68,7 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is the coolest.');
     });
 
-    it('should fallback on a reactive (i.e. wrong) result, then return the result of the asynchronous fallback function', async (): Promise<
-        void
-    > => {
+    it('should fallback on a reactive (i.e. wrong) result, then return the result of the asynchronous fallback function', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.fallback(
@@ -102,9 +96,7 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should fallback along a synchronous fallback chain sequentially while it produces reactive (i.e. wrong) result until the first non-reactive (i.e. right) result is produced', async (): Promise<
-        void
-    > => {
+    it('should fallback along a synchronous fallback chain sequentially while it produces reactive (i.e. wrong) result until the first non-reactive (i.e. right) result is produced', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
@@ -138,9 +130,7 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback along an asynchronous fallback chain sequentially while it produces reactive (i.e. wrong) result, until the first non-reactive (i.e. right) result is produced', async (): Promise<
-        void
-    > => {
+    it('should fallback along an asynchronous fallback chain sequentially while it produces reactive (i.e. wrong) result, until the first non-reactive (i.e. right) result is produced', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
@@ -257,9 +247,7 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback on a reactive exception, then return the result of the synchronous fallback function', async (): Promise<
-        void
-    > => {
+    it('should fallback on a reactive exception, then return the result of the synchronous fallback function', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.fallback((): string => {
@@ -273,9 +261,7 @@ describe('FallbackPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should fallback on a reactive exception, then return the result of the asynchronous fallback function', async (): Promise<
-        void
-    > => {
+    it('should fallback on a reactive exception, then return the result of the asynchronous fallback function', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.fallback(
@@ -306,9 +292,7 @@ describe('FallbackPolicy', (): void => {
         }
     });
 
-    it('should fallback along a synchronous fallback chain sequentially while it throws reactive exception result until the first non-reactive exception is thrown', async (): Promise<
-        void
-    > => {
+    it('should fallback along a synchronous fallback chain sequentially while it throws reactive exception result until the first non-reactive exception is thrown', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
@@ -342,9 +326,7 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should fallback along an asynchronous fallback chain sequentially while it throws reactive exception until the first non-reactive exception is thrown', async (): Promise<
-        void
-    > => {
+    it('should fallback along an asynchronous fallback chain sequentially while it throws reactive exception until the first non-reactive exception is thrown', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
@@ -457,9 +439,7 @@ describe('FallbackPolicy', (): void => {
         expect(fallbacksExecuted).to.equal(3);
     });
 
-    it('should throw FallbackChainExhaustedException if falling back on result and there are no (more) links on the fallback chain', async (): Promise<
-        void
-    > => {
+    it('should throw FallbackChainExhaustedException if falling back on result and there are no (more) links on the fallback chain', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
         policy.reactOnResult((): boolean => true);
 
@@ -473,9 +453,7 @@ describe('FallbackPolicy', (): void => {
         }
     });
 
-    it('should throw FallbackChainExhaustedException if falling back on exception and there are no (more) links on the fallback chain', async (): Promise<
-        void
-    > => {
+    it('should throw FallbackChainExhaustedException if falling back on exception and there are no (more) links on the fallback chain', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
         policy.reactOnException((): boolean => true);
 
@@ -520,9 +498,7 @@ describe('FallbackPolicy', (): void => {
         expect(onFallbackExecuted).to.equal(1);
     });
 
-    it('should run onFallbackFn with result filled on fallback, every time before a fallback', async (): Promise<
-        void
-    > => {
+    it('should run onFallbackFn with result filled on fallback, every time before a fallback', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
@@ -595,9 +571,7 @@ describe('FallbackPolicy', (): void => {
         expect(onFallbackExecuted).to.equal(1);
     });
 
-    it('should run onFallbackFn with error filled on fallback, every time before a fallback', async (): Promise<
-        void
-    > => {
+    it('should run onFallbackFn with error filled on fallback, every time before a fallback', async (): Promise<void> => {
         const policy = new FallbackPolicy<string>();
 
         let fallbacksExecuted = 0;
@@ -983,6 +957,7 @@ describe('FallbackPolicy', (): void => {
 
     it('should not allow to set fallback during execution', (): void => {
         const policy = new FallbackPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1003,6 +978,7 @@ describe('FallbackPolicy', (): void => {
 
     it('should not allow to set onFallbackFns during execution', (): void => {
         const policy = new FallbackPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1023,6 +999,7 @@ describe('FallbackPolicy', (): void => {
 
     it('should not allow to add onFinallyFns during execution', (): void => {
         const policy = new FallbackPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1102,6 +1079,7 @@ describe('FallbackPolicy', (): void => {
         attemptPolicyModification(false);
 
         for (let i = 0; i < 100; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             policy.execute(
                 // eslint-disable-next-line no-loop-func
                 async (): Promise<void> => {

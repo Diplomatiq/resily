@@ -39,5 +39,5 @@ export abstract class Policy<ResultType> {
         }
     }
 
-    protected abstract async policyExecutorImpl(fn: ExecutedFn<ResultType>): Promise<ResultType>;
+    protected abstract policyExecutorImpl(fn: ExecutedFn<ResultType>): Promise<ResultType>;
 }

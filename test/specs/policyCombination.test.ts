@@ -4,9 +4,7 @@ import { FallbackPolicy } from '../../src/policies/reactive/fallbackPolicy/fallb
 import { RetryPolicy } from '../../src/policies/reactive/retryPolicy/retryPolicy';
 
 describe('PolicyCombination', (): void => {
-    it('should run the wrapped policy inside the wrapper policy (wrapped with singular wrapping)', async (): Promise<
-        void
-    > => {
+    it('should run the wrapped policy inside the wrapper policy (wrapped with singular wrapping)', async (): Promise<void> => {
         let onRetryExecuted = 0;
         let onFallbackExecuted = 0;
 
@@ -37,9 +35,7 @@ describe('PolicyCombination', (): void => {
         expect(onFallbackExecuted).to.equal(1);
     });
 
-    it('should run the wrapped policy inside the wrapper policy (combined with PolicyCombination)', async (): Promise<
-        void
-    > => {
+    it('should run the wrapped policy inside the wrapper policy (combined with PolicyCombination)', async (): Promise<void> => {
         let onRetryExecuted = 0;
         let onFallbackExecuted = 0;
 

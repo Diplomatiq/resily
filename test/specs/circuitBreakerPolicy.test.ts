@@ -53,9 +53,7 @@ describe('CircuitBreakerPolicy', (): void => {
         }
     });
 
-    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<
-        void
-    > => {
+    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy();
 
         try {
@@ -71,9 +69,7 @@ describe('CircuitBreakerPolicy', (): void => {
         }
     });
 
-    it('should break the circuit on encountering a reactive given result once, then hold the circuit broken for 1 second', async (): Promise<
-        void
-    > => {
+    it('should break the circuit on encountering a reactive given result once, then hold the circuit broken for 1 second', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -134,9 +130,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should break the circuit on encountering a reactive result 10 consecutive times, then hold the circuit broken for 30 seconds', async (): Promise<
-        void
-    > => {
+    it('should break the circuit on encountering a reactive result 10 consecutive times, then hold the circuit broken for 30 seconds', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
         policy.breakAfter(10);
@@ -182,9 +176,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should not break the circuit on encountering a non-reactive result 10 consecutive times', async (): Promise<
-        void
-    > => {
+    it('should not break the circuit on encountering a non-reactive result 10 consecutive times', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
         policy.breakAfter(10);
@@ -206,9 +198,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should break the circuit on encountering multiple reactive results, altogether 10 consecutive times', async (): Promise<
-        void
-    > => {
+    it('should break the circuit on encountering multiple reactive results, altogether 10 consecutive times', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is not cool.');
@@ -242,9 +232,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Open');
     });
 
-    it('should break the circuit on encountering a reactive exception once, then hold the circuit broken for 1 second', async (): Promise<
-        void
-    > => {
+    it('should break the circuit on encountering a reactive exception once, then hold the circuit broken for 1 second', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
@@ -318,9 +306,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should break the circuit on encountering a reactive exception 10 consecutive times, then hold the circuit broken for 30 seconds', async (): Promise<
-        void
-    > => {
+    it('should break the circuit on encountering a reactive exception 10 consecutive times, then hold the circuit broken for 30 seconds', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.breakAfter(10);
@@ -370,9 +356,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should not break the circuit on encountering a non-reactive exception 10 consecutive times', async (): Promise<
-        void
-    > => {
+    it('should not break the circuit on encountering a non-reactive exception 10 consecutive times', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.breakAfter(10);
@@ -402,9 +386,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should break the circuit on encountering multiple reactive exceptions, altogether 10 consecutive times', async (): Promise<
-        void
-    > => {
+    it('should break the circuit on encountering multiple reactive exceptions, altogether 10 consecutive times', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<void>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'AnotherTestException');
@@ -448,9 +430,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Open');
     });
 
-    it('should close the circuit after the circuit break duration elapsed, if encountering a non-reactive result', async (): Promise<
-        void
-    > => {
+    it('should close the circuit after the circuit break duration elapsed, if encountering a non-reactive result', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -472,9 +452,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should not close the circuit after the circuit break duration elapsed, if encountering a reactive result', async (): Promise<
-        void
-    > => {
+    it('should not close the circuit after the circuit break duration elapsed, if encountering a reactive result', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -496,9 +474,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Open');
     });
 
-    it('should close the circuit after the circuit break duration elapsed, if encountering a non-reactive exception', async (): Promise<
-        void
-    > => {
+    it('should close the circuit after the circuit break duration elapsed, if encountering a non-reactive exception', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
@@ -530,9 +506,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(policy.getCircuitState()).to.equal('Closed');
     });
 
-    it('should not close the circuit after the circuit break duration elapsed, if encountering a reactive exception', async (): Promise<
-        void
-    > => {
+    it('should not close the circuit after the circuit break duration elapsed, if encountering a reactive exception', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
 
@@ -632,9 +606,7 @@ describe('CircuitBreakerPolicy', (): void => {
         }
     });
 
-    it('should run synchronous onOpenFns sequentially when the circuit transitions to Open state', async (): Promise<
-        void
-    > => {
+    it('should run synchronous onOpenFns sequentially when the circuit transitions to Open state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -662,9 +634,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onOpenRun).to.equal(3);
     });
 
-    it('should run asynchronous onOpenFns sequentially when the circuit transitions to Open state', async (): Promise<
-        void
-    > => {
+    it('should run asynchronous onOpenFns sequentially when the circuit transitions to Open state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -701,9 +671,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onOpenRun).to.equal(3);
     });
 
-    it('should run synchronous onCloseFns sequentially when the circuit transitions to Closed state', async (): Promise<
-        void
-    > => {
+    it('should run synchronous onCloseFns sequentially when the circuit transitions to Closed state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -737,9 +705,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onCloseRun).to.equal(3);
     });
 
-    it('should run asynchronous onCloseFns sequentially when the circuit transitions to Closed state', async (): Promise<
-        void
-    > => {
+    it('should run asynchronous onCloseFns sequentially when the circuit transitions to Closed state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -782,9 +748,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onCloseRun).to.equal(3);
     });
 
-    it('should run synchronous onAttemptingCloseFns sequentially when the circuit transitions to AttemptingClose state', async (): Promise<
-        void
-    > => {
+    it('should run synchronous onAttemptingCloseFns sequentially when the circuit transitions to AttemptingClose state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -818,9 +782,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onAttemptingCloseRun).to.equal(3);
     });
 
-    it('should run asynchronous onAttemptingCloseFns sequentially when the circuit transitions to AttemptingClose state', async (): Promise<
-        void
-    > => {
+    it('should run asynchronous onAttemptingCloseFns sequentially when the circuit transitions to AttemptingClose state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is broken.');
 
@@ -863,9 +825,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onAttemptingCloseRun).to.equal(3);
     });
 
-    it('should run synchronous onIsolateFns sequentially when the circuit transitions to Isolated state', async (): Promise<
-        void
-    > => {
+    it('should run synchronous onIsolateFns sequentially when the circuit transitions to Isolated state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
 
         let onIsolateRun = 0;
@@ -890,9 +850,7 @@ describe('CircuitBreakerPolicy', (): void => {
         expect(onIsolateRun).to.equal(3);
     });
 
-    it('should run asynchronous onIsolateFns sequentially when the circuit transitions to Isolated state', async (): Promise<
-        void
-    > => {
+    it('should run asynchronous onIsolateFns sequentially when the circuit transitions to Isolated state', async (): Promise<void> => {
         const policy = new CircuitBreakerPolicy<string>();
 
         let onIsolateRun = 0;
@@ -928,6 +886,7 @@ describe('CircuitBreakerPolicy', (): void => {
 
     it('should not allow to set breakAfter during execution', (): void => {
         const policy = new CircuitBreakerPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -946,6 +905,7 @@ describe('CircuitBreakerPolicy', (): void => {
 
     it('should not allow to set breakFor during execution', (): void => {
         const policy = new CircuitBreakerPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -964,6 +924,7 @@ describe('CircuitBreakerPolicy', (): void => {
 
     it('should not allow to add onOpenFns during execution', (): void => {
         const policy = new CircuitBreakerPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -984,6 +945,7 @@ describe('CircuitBreakerPolicy', (): void => {
 
     it('should not allow to add onCloseFns during execution', (): void => {
         const policy = new CircuitBreakerPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1004,6 +966,7 @@ describe('CircuitBreakerPolicy', (): void => {
 
     it('should not allow to add onAttemptingCloseFns during execution', (): void => {
         const policy = new CircuitBreakerPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1024,6 +987,7 @@ describe('CircuitBreakerPolicy', (): void => {
 
     it('should not allow to add onIsolateFns during execution', (): void => {
         const policy = new CircuitBreakerPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1132,6 +1096,7 @@ describe('CircuitBreakerPolicy', (): void => {
         attemptPolicyModification(false);
 
         for (let i = 0; i < 100; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             policy.execute(
                 // eslint-disable-next-line no-loop-func
                 async (): Promise<void> => {
@@ -1246,7 +1211,7 @@ describe('CircuitBreakerPolicy', (): void => {
         const policy = new CircuitBreakerPolicy<string>();
         expect(policy.getCircuitState()).to.equal('Closed');
         try {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             policy.validateTransition(new Set(['AttemptingClose']));
         } catch (ex) {

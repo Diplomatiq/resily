@@ -62,6 +62,7 @@ describe('BulkheadIsolationPolicy', (): void => {
         expect(policy.getAvailableSlotsCount()).to.equal(1);
         expect(policy.getAvailableQueuedActionsCount()).to.equal(0);
 
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -93,6 +94,7 @@ describe('BulkheadIsolationPolicy', (): void => {
         expect(policy.getAvailableSlotsCount()).to.equal(1);
         expect(policy.getAvailableQueuedActionsCount()).to.equal(1);
 
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -105,6 +107,7 @@ describe('BulkheadIsolationPolicy', (): void => {
         expect(policy.getAvailableQueuedActionsCount()).to.equal(1);
 
         let executed = false;
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute((): void => {
             executed = true;
         });
@@ -231,6 +234,7 @@ describe('BulkheadIsolationPolicy', (): void => {
 
     it('should not allow to set maxConcurrency during execution', (): void => {
         const policy = new BulkheadIsolationPolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -249,6 +253,7 @@ describe('BulkheadIsolationPolicy', (): void => {
 
     it('should not allow to set maxQueuedActions during execution', (): void => {
         const policy = new BulkheadIsolationPolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -311,6 +316,7 @@ describe('BulkheadIsolationPolicy', (): void => {
         attemptPolicyModification(false);
 
         for (let i = 0; i < 100; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             policy.execute(
                 // eslint-disable-next-line no-loop-func
                 async (): Promise<void> => {
