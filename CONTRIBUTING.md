@@ -6,7 +6,7 @@ We would like you to follow the following set of guidelines.
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [Diplomatiq Code of Conduct](https://github.com/Diplomatiq/resily/blob/develop/CODE_OF_CONDUCT.md). By participating in any of our projects, you are expected to comply with our Code of Conduct. Please do not hesitate to report unacceptable behaviour to [conduct@diplomatiq.org](mailto:conduct@diplomatiq.org).
+This project and everyone participating in it is governed by the [Diplomatiq Code of Conduct](https://github.com/Diplomatiq/resily/blob/main/CODE_OF_CONDUCT.md). By participating in any of our projects, you are expected to comply with our Code of Conduct. Please do not hesitate to report unacceptable behaviour to [conduct@diplomatiq.org](mailto:conduct@diplomatiq.org).
 
 ## Questions and problems
 

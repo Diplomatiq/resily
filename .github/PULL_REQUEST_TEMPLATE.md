@@ -5,7 +5,7 @@ Please check if your PR fulfills the following requirements:
 <!-- Please check all points applying to this PR using an "x". -->
 
 -   [ ] The pull request consists of exactly one commit.
--   [ ] The commit message follows the [commit message guidelines](https://github.com/Diplomatiq/resily/blob/develop/CONTRIBUTING.md#commit-messages).
+-   [ ] The commit message follows the [commit message guidelines](https://github.com/Diplomatiq/resily/blob/main/CONTRIBUTING.md#commit-messages).
 -   [ ] Tests for the changes have been added / updated (for features / bug fixes).
 -   [ ] Docs have been added / updated (for features / bug fixes).
 

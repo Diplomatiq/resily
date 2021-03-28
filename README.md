@@ -295,7 +295,7 @@ policy.waitBeforeRetry(() => 100);
 
 // this overwrites the previous backoff strategy
 // wait for 100 ms before the first retry, 200 ms before the second retry, etc.
-policy.waitBeforeRetry(currentRetryCount => currentRetryCount * 100);
+policy.waitBeforeRetry((currentRetryCount) => currentRetryCount * 100);
 ```
 
 The waiting happens _before_ the execution of onRetryFns.
@@ -694,7 +694,7 @@ import { TimeoutPolicy } from '@diplomatiq/resily';
 const policy = new TimeoutPolicy<string>();
 policy.onTimeout(
     // onTimeoutFns can be sync or async, they will be awaited
-    async timedOutAfterMs => {
+    async (timedOutAfterMs) => {
         // the policy was configured to timeout after timedOutAfterMs
     },
 );
@@ -961,7 +961,7 @@ if (!policy.isExecuting()) {
 
 ## Development
 
-See [CONTRIBUTING.md](https://github.com/Diplomatiq/resily/blob/develop/CONTRIBUTING.md) for details.
+See [CONTRIBUTING.md](https://github.com/Diplomatiq/resily/blob/main/CONTRIBUTING.md) for details.
 
 ---
 
