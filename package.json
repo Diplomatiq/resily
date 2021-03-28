@@ -15,7 +15,7 @@
     "lint": "eslint ./src/ ./test/ --ext .ts",
     "prepublishOnly": "npm run check-release-tag && npm run lint && npm run build && npm run test",
     "test": "cross-env-shell TS_NODE_PROJECT=tsconfig.test.json nyc --reporter=lcov --reporter=text mocha --require ts-node/register --require source-map-support/register --require esm --recursive test/specs/**/*.test.ts",
-    "version": "node --experimental-modules scripts/sync-sonar-version.mjs && conventional-changelog -p angular -i CHANGELOG.md -s && git add sonar-project.properties CHANGELOG.md"
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md"
   },
   "repository": {
     "type": "git",

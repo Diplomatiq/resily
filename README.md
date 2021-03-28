@@ -21,40 +21,12 @@ Resily is a TypeScript resilience and transient-fault-handling library that allo
   <img src="https://img.shields.io/npm/v/@diplomatiq/resily.svg" alt="latest released version on npm">
 </a>
 
-<a href="https://github.com/Diplomatiq/resily/blob/master/LICENSE" target="_blank" style="text-decoration: none;">
+<a href="https://github.com/Diplomatiq/resily/blob/main/LICENSE" target="_blank" style="text-decoration: none;">
   <img src="https://img.shields.io/npm/l/@diplomatiq/resily.svg" alt="license">
-</a>
-</p>
-
-<p>
-<a href="https://sonarcloud.io/dashboard?id=Diplomatiq_resily" target="_blank" style="text-decoration: none;">
-  <img src="https://sonarcloud.io/api/project_badges/measure?project=Diplomatiq_resily&metric=alert_status" alt="Quality Gate">
-</a>
-
-<a href="https://sonarcloud.io/dashboard?id=Diplomatiq_resily" target="_blank" style="text-decoration: none;">
-  <img src="https://sonarcloud.io/api/project_badges/measure?project=Diplomatiq_resily&metric=coverage" alt="Coverage">
-</a>
-
-<a href="https://sonarcloud.io/dashboard?id=Diplomatiq_resily" target="_blank" style="text-decoration: none;">
-  <img src="https://sonarcloud.io/api/project_badges/measure?project=Diplomatiq_resily&metric=sqale_rating" alt="Maintainability Rating">
-</a>
-
-<a href="https://sonarcloud.io/dashboard?id=Diplomatiq_resily" target="_blank" style="text-decoration: none;">
-  <img src="https://sonarcloud.io/api/project_badges/measure?project=Diplomatiq_resily&metric=reliability_rating" alt="Reliability Rating">
-</a>
-
-<a href="https://sonarcloud.io/dashboard?id=Diplomatiq_resily" target="_blank" style="text-decoration: none;">
-  <img src="https://sonarcloud.io/api/project_badges/measure?project=Diplomatiq_resily&metric=security_rating" alt="Security Rating">
 </a>
 
 <a href="https://github.com/Diplomatiq/resily/pulls" target="_blank" style="text-decoration: none;">
   <img src="https://api.dependabot.com/badges/status?host=github&repo=Diplomatiq/resily" alt="Dependabot">
-</a>
-</p>
-
-<p>
-<a href="https://gitter.im/Diplomatiq/resily" target="_blank" style="text-decoration: none;">
-  <img src="https://badges.gitter.im/Diplomatiq/resily.svg" alt="Gitter">
 </a>
 </p>
 

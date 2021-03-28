@@ -10,9 +10,7 @@ This project and everyone participating in it is governed by the [Diplomatiq Cod
 
 ## Questions and problems
 
-In the first place, you should reach out to [our gitter channel](https://gitter.im/Diplomatiq/resily).
-
-Also, you can open an issue to discuss any questions or problems. Make sure to label them with either `question` or `discussion`.
+Open an issue to discuss any questions or problems. Make sure to label them with either `question` or `discussion`.
 
 ## Reporting bugs
 
@@ -38,7 +36,7 @@ If you request a feature, use the [Feature request](https://github.com/Diplomati
 
 The following guidelines make easier to maintain a high-quality code base.
 
-1. Branch from `develop` (not from `master`).
+1. Branch from `main`.
 2. Create your improvement to the code base.
 
     - Make sure to follow the [style guide](#style-guide).
