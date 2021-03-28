@@ -24,10 +24,6 @@ Resily is a TypeScript resilience and transient-fault-handling library that allo
 <a href="https://github.com/Diplomatiq/resily/blob/main/LICENSE" target="_blank" style="text-decoration: none;">
   <img src="https://img.shields.io/npm/l/@diplomatiq/resily.svg" alt="license">
 </a>
-
-<a href="https://github.com/Diplomatiq/resily/pulls" target="_blank" style="text-decoration: none;">
-  <img src="https://api.dependabot.com/badges/status?host=github&repo=Diplomatiq/resily" alt="Dependabot">
-</a>
 </p>
 
 ---
