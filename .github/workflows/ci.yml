@@ -9,7 +9,7 @@ jobs:
 
         strategy:
             matrix:
-                node: [13, 12, 11, 10]
+                node: [15, 14, 13, 12, 11]
             fail-fast: false
 
         steps:

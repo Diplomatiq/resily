@@ -32,9 +32,7 @@ describe('TimeoutPolicy', (): void => {
         }
     });
 
-    it('should throw a TimeoutException if the execution takes more than the specified time', async (): Promise<
-        void
-    > => {
+    it('should throw a TimeoutException if the execution takes more than the specified time', async (): Promise<void> => {
         const policy = new TimeoutPolicy<void>();
         policy.timeoutAfter(10);
 
@@ -51,9 +49,7 @@ describe('TimeoutPolicy', (): void => {
         }
     });
 
-    it('should not throw a TimeoutException if the execution takes less than the specified time', async (): Promise<
-        void
-    > => {
+    it('should not throw a TimeoutException if the execution takes less than the specified time', async (): Promise<void> => {
         const policy = new TimeoutPolicy<void>();
         policy.timeoutAfter(20);
         await policy.execute(
@@ -157,9 +153,7 @@ describe('TimeoutPolicy', (): void => {
         }
     });
 
-    it('should not run onTimeoutFns if the execution callback throws a TimeoutException (if timeout is not set)', async (): Promise<
-        void
-    > => {
+    it('should not run onTimeoutFns if the execution callback throws a TimeoutException (if timeout is not set)', async (): Promise<void> => {
         const policy = new TimeoutPolicy<void>();
 
         let onTimeoutCounter = 0;
@@ -181,9 +175,7 @@ describe('TimeoutPolicy', (): void => {
         expect(onTimeoutCounter).to.equal(0);
     });
 
-    it('should not run onTimeoutFns if the execution callback throws a TimeoutException (if timeout is set)', async (): Promise<
-        void
-    > => {
+    it('should not run onTimeoutFns if the execution callback throws a TimeoutException (if timeout is set)', async (): Promise<void> => {
         const policy = new TimeoutPolicy<void>();
         policy.timeoutAfter(1000);
 
@@ -208,6 +200,7 @@ describe('TimeoutPolicy', (): void => {
 
     it('should not allow to set timeoutAfter during execution', (): void => {
         const policy = new TimeoutPolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -226,6 +219,7 @@ describe('TimeoutPolicy', (): void => {
 
     it('should not allow to add onTimeoutFns during execution', (): void => {
         const policy = new TimeoutPolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -292,6 +286,7 @@ describe('TimeoutPolicy', (): void => {
         attemptPolicyModification(false);
 
         for (let i = 0; i < 100; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             policy.execute(
                 // eslint-disable-next-line no-loop-func
                 async (): Promise<void> => {
