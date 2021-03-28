@@ -51,9 +51,7 @@ describe('RetryPolicy', (): void => {
         }
     });
 
-    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<
-        void
-    > => {
+    it('should run the asynchronous execution callback and throw its exceptions by default', async (): Promise<void> => {
         const policy = new RetryPolicy();
 
         try {
@@ -99,9 +97,7 @@ describe('RetryPolicy', (): void => {
         expect(result).to.equal('Diplomatiq is cool.');
     });
 
-    it('should retry on a reactive result thrice when setting retryCount to 3, then return the result', async (): Promise<
-        void
-    > => {
+    it('should retry on a reactive result thrice when setting retryCount to 3, then return the result', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.retryCount(3);
@@ -180,9 +176,7 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(1);
     });
 
-    it('should retry on a reactive exception thrice when setting retryCount to 3, then throw', async (): Promise<
-        void
-    > => {
+    it('should retry on a reactive exception thrice when setting retryCount to 3, then throw', async (): Promise<void> => {
         const policy = new RetryPolicy();
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
         policy.retryCount(3);
@@ -234,9 +228,7 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(4);
     });
 
-    it('should retry on a reactive result and on a reactive exception as well, then return/throw', async (): Promise<
-        void
-    > => {
+    it('should retry on a reactive result and on a reactive exception as well, then return/throw', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
         policy.reactOnResult((r: string): boolean => r === 'Diplomatiq is cool.');
         policy.reactOnException((e: unknown): boolean => (e as Error).message === 'TestException');
@@ -322,9 +314,7 @@ describe('RetryPolicy', (): void => {
         expect(onRetryExecuted).to.equal(1);
     });
 
-    it('should run onRetryFn with result filled on retry, before the retried execution thrice when setting retryCount to 3', async (): Promise<
-        void
-    > => {
+    it('should run onRetryFn with result filled on retry, before the retried execution thrice when setting retryCount to 3', async (): Promise<void> => {
         const policy = new RetryPolicy<string>();
 
         let executed = 0;
@@ -398,9 +388,7 @@ describe('RetryPolicy', (): void => {
         expect(onRetryExecuted).to.equal(0);
     });
 
-    it('should run onRetryFn with error filled on retry, before the retried execution thrice when setting retryCount to 3', async (): Promise<
-        void
-    > => {
+    it('should run onRetryFn with error filled on retry, before the retried execution thrice when setting retryCount to 3', async (): Promise<void> => {
         const policy = new RetryPolicy();
 
         let executed = 0;
@@ -741,19 +729,19 @@ describe('RetryPolicy', (): void => {
 
         expect(executed).to.equal(1);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(1000);
         expect(executed).to.equal(2);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(2000);
         expect(executed).to.equal(3);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(3000);
@@ -763,9 +751,7 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(4);
     });
 
-    it('should wait for the specified interval (depending on the current retry count) before retry on result if set', async (): Promise<
-        void
-    > => {
+    it('should wait for the specified interval (depending on the current retry count) before retry on result if set', async (): Promise<void> => {
         const elapsedTimeHelper = (executed: number): number => {
             return new Array(executed)
                 .fill(undefined)
@@ -788,19 +774,19 @@ describe('RetryPolicy', (): void => {
 
         expect(executed).to.equal(1);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(1000);
         expect(executed).to.equal(2);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(2000);
         expect(Date.now()).to.equal(3000);
         expect(executed).to.equal(3);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(3000);
         expect(Date.now()).to.equal(6000);
@@ -830,19 +816,19 @@ describe('RetryPolicy', (): void => {
 
         expect(executed).to.equal(1);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(1000);
         expect(executed).to.equal(2);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(2000);
         expect(executed).to.equal(3);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(3000);
@@ -852,9 +838,7 @@ describe('RetryPolicy', (): void => {
         expect(executed).to.equal(4);
     });
 
-    it('should wait for the specified interval (depending on the current retry count) before retry on exception if set', async (): Promise<
-        void
-    > => {
+    it('should wait for the specified interval (depending on the current retry count) before retry on exception if set', async (): Promise<void> => {
         const elapsedTimeHelper = (executed: number): number => {
             return new Array(executed)
                 .fill(undefined)
@@ -881,19 +865,19 @@ describe('RetryPolicy', (): void => {
 
         expect(executed).to.equal(1);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(1000);
         expect(Date.now()).to.equal(1000);
         expect(executed).to.equal(2);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(2000);
         expect(Date.now()).to.equal(3000);
         expect(executed).to.equal(3);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await clock.tickAsync(3000);
         expect(Date.now()).to.equal(6000);
@@ -905,6 +889,7 @@ describe('RetryPolicy', (): void => {
 
     it('should not allow to set retryCount during execution', (): void => {
         const policy = new RetryPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -923,6 +908,7 @@ describe('RetryPolicy', (): void => {
 
     it('should not allow to set retryForever during execution', (): void => {
         const policy = new RetryPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -941,6 +927,7 @@ describe('RetryPolicy', (): void => {
 
     it('should not allow to add onRetryFns during execution', (): void => {
         const policy = new RetryPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -961,6 +948,7 @@ describe('RetryPolicy', (): void => {
 
     it('should not allow to set waitBeforeRetry during execution', (): void => {
         const policy = new RetryPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -979,6 +967,7 @@ describe('RetryPolicy', (): void => {
 
     it('should not allow to add onFinallyFns during execution', (): void => {
         const policy = new RetryPolicy();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 await new Promise((): void => {
@@ -1074,6 +1063,7 @@ describe('RetryPolicy', (): void => {
         attemptPolicyModification(false);
 
         for (let i = 0; i < 100; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             policy.execute(
                 // eslint-disable-next-line no-loop-func
                 async (): Promise<void> => {

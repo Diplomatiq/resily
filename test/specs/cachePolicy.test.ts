@@ -68,9 +68,7 @@ describe('CachePolicy', (): void => {
         }
     });
 
-    it("should hold the cache valid for Date.now() + 10000ms from each update if setting timeToLive('relative', 10000)", async (): Promise<
-        void
-    > => {
+    it("should hold the cache valid for Date.now() + 10000ms from each update if setting timeToLive('relative', 10000)", async (): Promise<void> => {
         const policy = new CachePolicy<string>();
         policy.timeToLive('relative', 10000);
 
@@ -111,9 +109,7 @@ describe('CachePolicy', (): void => {
         expect(executed).to.equal(3);
     });
 
-    it("should hold the cache valid for Date.now() + 10000ms if setting timeToLive('absolute', Date.now() + 10000ms)", async (): Promise<
-        void
-    > => {
+    it("should hold the cache valid for Date.now() + 10000ms if setting timeToLive('absolute', Date.now() + 10000ms)", async (): Promise<void> => {
         const policy = new CachePolicy<string>();
         policy.timeToLive('absolute', Date.now() + 10000);
 
@@ -155,9 +151,7 @@ describe('CachePolicy', (): void => {
         expect(executed).to.equal(5);
     });
 
-    it("should hold the cache valid for Date.now() + 10000ms from each interaction if setting timeToLive('sliding', 10000)", async (): Promise<
-        void
-    > => {
+    it("should hold the cache valid for Date.now() + 10000ms from each interaction if setting timeToLive('sliding', 10000)", async (): Promise<void> => {
         const policy = new CachePolicy<string>();
         policy.timeToLive('sliding', 10000);
 
@@ -252,9 +246,7 @@ describe('CachePolicy', (): void => {
         expect(executed).to.equal(3);
     });
 
-    it('should run onCacheGetFns (but should not run onCacheMissFns and onCachePutFns) each time when the value is retrieved from the cache', async (): Promise<
-        void
-    > => {
+    it('should run onCacheGetFns (but should not run onCacheMissFns and onCachePutFns) each time when the value is retrieved from the cache', async (): Promise<void> => {
         const policy = new CachePolicy<string>();
         policy.timeToLive('relative', 10000);
 
@@ -299,9 +291,7 @@ describe('CachePolicy', (): void => {
         expect(onCachePutExecuted).to.equal(0);
     });
 
-    it('should run onCacheMissFns before, and onCachePutFns after the value is retreived by executing the wrapped method (but should not run onCacheGetFns)', async (): Promise<
-        void
-    > => {
+    it('should run onCacheMissFns before, and onCachePutFns after the value is retreived by executing the wrapped method (but should not run onCacheGetFns)', async (): Promise<void> => {
         const policy = new CachePolicy<string>();
         policy.timeToLive('relative', 10000);
 
@@ -339,6 +329,7 @@ describe('CachePolicy', (): void => {
 
     it('should not allow to set timeToLive during exception', (): void => {
         const policy = new CachePolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 // will not resolve
@@ -355,6 +346,7 @@ describe('CachePolicy', (): void => {
 
     it('should not allow to add onCacheGetFns during exception', (): void => {
         const policy = new CachePolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 // will not resolve
@@ -373,6 +365,7 @@ describe('CachePolicy', (): void => {
 
     it('should not allow to add onCachePutFns during exception', (): void => {
         const policy = new CachePolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 // will not resolve
@@ -391,6 +384,7 @@ describe('CachePolicy', (): void => {
 
     it('should not allow to add onCacheMissFns during exception', (): void => {
         const policy = new CachePolicy<void>();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         policy.execute(
             async (): Promise<void> => {
                 // will not resolve
@@ -477,6 +471,7 @@ describe('CachePolicy', (): void => {
         attemptPolicyModification(false);
 
         for (let i = 0; i < 100; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             policy.execute(
                 // eslint-disable-next-line no-loop-func
                 async (): Promise<void> => {

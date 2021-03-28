@@ -37,9 +37,7 @@ describe('PredicateChecker', (): void => {
     });
 
     describe('some', (): void => {
-        it('should return true if at least one of the predicates returns true for the subject', async (): Promise<
-            void
-        > => {
+        it('should return true if at least one of the predicates returns true for the subject', async (): Promise<void> => {
             const result = await PredicateChecker.some('Diplomatiq is cool.', [
                 (subject: string): boolean => subject === 'Diplomatiq is cool.',
                 (subject: string): boolean => subject === 'Diplomatiq is the coolest.',
@@ -55,9 +53,7 @@ describe('PredicateChecker', (): void => {
             expect(result).to.be.false;
         });
 
-        it('should return true if at least one of the async predicates returns true for the subject', async (): Promise<
-            void
-        > => {
+        it('should return true if at least one of the async predicates returns true for the subject', async (): Promise<void> => {
             const result = await PredicateChecker.some('Diplomatiq is cool.', [
                 (subject: string): boolean => subject === 'Diplomatiq is cool.',
                 (subject: string): boolean => subject === 'Diplomatiq is the coolest.',
@@ -65,9 +61,7 @@ describe('PredicateChecker', (): void => {
             expect(result).to.be.true;
         });
 
-        it('should return false if none of the async predicates returns true for the subject', async (): Promise<
-            void
-        > => {
+        it('should return false if none of the async predicates returns true for the subject', async (): Promise<void> => {
             const result = await PredicateChecker.some('Diplomatiq is not cool.', [
                 (subject: string): boolean => subject === 'Diplomatiq is cool.',
                 (subject: string): boolean => subject === 'Diplomatiq is the coolest.',
@@ -90,9 +84,7 @@ describe('PredicateChecker', (): void => {
             expect(result).to.be.true;
         });
 
-        it('should return false if at least one of the predicates returns false for the subject', async (): Promise<
-            void
-        > => {
+        it('should return false if at least one of the predicates returns false for the subject', async (): Promise<void> => {
             const result = await PredicateChecker.every('Diplomatiq is cool.', [
                 (subject: string): boolean => subject.includes('Diplomatiq'),
                 (subject: string): boolean => subject.includes('not cool'),
@@ -100,9 +92,7 @@ describe('PredicateChecker', (): void => {
             expect(result).to.be.false;
         });
 
-        it('should return true if all of the async predicates returns true for the subject', async (): Promise<
-            void
-        > => {
+        it('should return true if all of the async predicates returns true for the subject', async (): Promise<void> => {
             const result = await PredicateChecker.every('Diplomatiq is cool.', [
                 (subject: string): boolean => subject.includes('Diplomatiq'),
                 (subject: string): boolean => subject.includes('cool'),
@@ -110,9 +100,7 @@ describe('PredicateChecker', (): void => {
             expect(result).to.be.true;
         });
 
-        it('should return false if at least one of the async predicates returns false for the subject', async (): Promise<
-            void
-        > => {
+        it('should return false if at least one of the async predicates returns false for the subject', async (): Promise<void> => {
             const result = await PredicateChecker.every('Diplomatiq is cool.', [
                 (subject: string): boolean => subject.includes('Diplomatiq'),
                 (subject: string): boolean => subject.includes('not cool'),
