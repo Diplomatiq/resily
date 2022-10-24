@@ -41,7 +41,7 @@
     "@diplomatiq/eslint-config-tslib": "^5.0.0",
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.2",
-    "@types/node": "^16.9.0",
+    "@types/node": "^18.11.4",
     "@types/sinon": "^9.0.11",
     "chai": "^4.3.4",
     "conventional-changelog-cli": "^2.1.1",
