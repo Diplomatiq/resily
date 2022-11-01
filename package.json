@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/Diplomatiq/resily#readme",
   "devDependencies": {
-    "@commitlint/cli": "^12.0.1",
+    "@commitlint/cli": "^17.2.0",
     "@diplomatiq/eslint-config-tslib": "^5.0.0",
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.2",
